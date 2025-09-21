@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { sendMessageToGemini } from '../../services/geminiService'
+import { sendMessageToGemini } from '../../services/GeminiService'
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
