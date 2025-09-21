@@ -53,7 +53,7 @@ const ProfileSection = () => {
     // Calculate variance for consistency
     const variance = accuracies.reduce((acc, val) => acc + Math.pow(val - avgAccuracy, 2), 0) / accuracies.length
     const isConsistent = variance < 50
-    const isFast = avgTime < 8
+    const isFast = avgTime < 30
     const isAccurate = avgAccuracy > 80
     const hasStrongImprovement = improvement > 15
     const hasEarlyStruggle = earlyAccuracy < 70 && lateAccuracy > 85
@@ -192,7 +192,7 @@ const ProfileSection = () => {
           type: mapLearningStyleToType(partner.academicProfile.learningStyle),
           compatibility: match.overallScore,
           accuracy: 75 + Math.floor(Math.random() * 20), // Simulated for display
-          averageTime: 5 + Math.floor(Math.random() * 10), // Simulated for display
+          averageTime: 25 + Math.floor(Math.random() * 20), // Simulated for display
           strengths: match.strengths,
           challenges: match.challenges,
           recommendations: match.recommendations,
@@ -230,7 +230,7 @@ const ProfileSection = () => {
             type: mapLearningStyleToType(partner.academicProfile.learningStyle),
             compatibility: overallScore,
             accuracy: 75 + Math.floor(Math.random() * 20),
-            averageTime: 5 + Math.floor(Math.random() * 10),
+            averageTime: 25 + Math.floor(Math.random() * 20),
             strengths: [`Expertise in ${partner.academicProfile.subjects[0]}`, 'Collaborative approach'],
             explanation: `Good compatibility based on shared ${partner.academicProfile.subjects[0]} interests and compatible learning approaches.`,
             initials: partner.name.split(' ').map(n => n[0]).join(''),
@@ -359,7 +359,7 @@ const ProfileSection = () => {
       type: types[index % types.length],
       compatibility: Math.floor(Math.random() * 30) + 70, // 70-99% compatibility
       accuracy: Math.floor(Math.random() * 25) + 75, // 75-99% accuracy
-      averageTime: Math.floor(Math.random() * 10) + 5, // 5-15 seconds
+      averageTime: Math.floor(Math.random() * 20) + 25, // 25-45 seconds
       strengths: skillSets[index % skillSets.length],
       initials: name.split(' ').map(n => n[0]).join(''),
       avatarColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'][index % 6]
@@ -374,11 +374,11 @@ const ProfileSection = () => {
 
     // Always generate mock learning history for demo purposes
     const mockHistory = [
-      { date: '15/01/2025', accuracy: 76, averageTime: 12.3, notes: 'First assessment - getting familiar with the system' },
-      { date: '18/01/2025', accuracy: 82, averageTime: 10.8, notes: 'Improved focus and understanding of patterns' },
-      { date: '20/01/2025', accuracy: 88, averageTime: 9.2, notes: 'Great progress! Learning strategies working well' },
-      { date: '22/01/2025', accuracy: 84, averageTime: 8.7, notes: 'Slight dip but still maintaining good performance' },
-      { date: '25/01/2025', accuracy: 91, averageTime: 7.9, notes: 'Excellent session! Best accuracy so far' }
+      { date: '15/01/2025', accuracy: 76, averageTime: 45.2, notes: 'Initial math assessment completed - baseline established' },
+      { date: '18/01/2025', accuracy: 82, averageTime: 38.6, notes: 'Geometry concepts showing improvement, faster pattern recognition' },
+      { date: '20/01/2025', accuracy: 88, averageTime: 32.1, notes: 'Strong progress in problem-solving efficiency and accuracy' },
+      { date: '22/01/2025', accuracy: 84, averageTime: 29.8, notes: 'Maintained speed gains despite complex algebra problems' },
+      { date: '25/01/2025', accuracy: 91, averageTime: 27.3, notes: 'Excellent performance on mixed topics - confidence growing' }
     ]
 
     // Use saved history if available, otherwise use mock data
@@ -407,7 +407,7 @@ const ProfileSection = () => {
         : 84
       const avgTime = historyForProfile.length > 0
         ? historyForProfile.reduce((sum, entry) => sum + entry.averageTime, 0) / historyForProfile.length
-        : 9.6
+        : 34.6
 
       // Generate profile data based on classification
       setUserProfile({
@@ -415,7 +415,7 @@ const ProfileSection = () => {
         initials: user?.name ? user.name.split(' ').map(n => n[0]).join('') : 'ST',
         type: learningProfile.type,
         learningStyle: learningProfile.description,
-        speedProfile: avgTime < 8 ? 'Fast Processor' : avgTime > 12 ? 'Thoughtful Processor' : 'Balanced Processor',
+        speedProfile: avgTime < 30 ? 'Fast Processor' : avgTime > 40 ? 'Thoughtful Processor' : 'Balanced Processor',
         errorPattern: 'Improving Pattern',
         averageAccuracy: Math.round(avgAccuracy),
         averageTime: Math.round(avgTime * 10) / 10,
@@ -425,7 +425,7 @@ const ProfileSection = () => {
         title: learningProfile.title,
         description: learningProfile.description,
         trend: 'improving',
-        speedAccuracyProfile: avgTime < 8 && avgAccuracy > 85 ? 'Speed-Focused' : avgTime > 12 && avgAccuracy > 85 ? 'Accuracy-Focused' : 'Balanced',
+        speedAccuracyProfile: avgTime < 30 && avgAccuracy > 85 ? 'Speed-Focused' : avgTime > 40 && avgAccuracy > 85 ? 'Accuracy-Focused' : 'Balanced',
         curveShape: learningProfile.curveShape,
         recommendations: learningProfile.recommendations
       })
