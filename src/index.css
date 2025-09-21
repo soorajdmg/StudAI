@@ -1,0 +1,182 @@
+:root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+
+  /* Professional Pastel Color Palette */
+  --primary-50: #faf9ff;
+  --primary-100: #f4f1ff;
+  --primary-200: #ede9fe;
+  --primary-300: #d6d3d1;
+  --primary-400: #a8a29e;
+  --primary-500: #78716c;
+  --primary-600: #57534e;
+  --primary-700: #44403c;
+  --primary-800: #292524;
+  --primary-900: #1c1917;
+
+  /* Pastel Accent Colors */
+  --accent-50: #f0f4ff;
+  --accent-100: #e0e7ff;
+  --accent-200: #c7d2fe;
+  --accent-300: #a5b4fc;
+  --accent-400: #8b5cf6;
+  --accent-500: #7c3aed;
+  --accent-600: #6d28d9;
+
+  /* Pastel Success Colors */
+  --success-50: #f0fdf9;
+  --success-100: #ccfbf1;
+  --success-200: #99f6e4;
+  --success-300: #5eead4;
+  --success-400: #2dd4bf;
+  --success-500: #14b8a6;
+  --success-600: #0d9488;
+
+  /* Pastel Warning Colors */
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fde68a;
+  --warning-300: #fcd34d;
+  --warning-400: #f59e0b;
+  --warning-500: #d97706;
+
+  /* Pastel Error Colors */
+  --error-50: #fef2f2;
+  --error-100: #fee2e2;
+  --error-200: #fecaca;
+  --error-300: #fca5a5;
+  --error-400: #f87171;
+  --error-500: #ef4444;
+
+  /* Pastel Info Colors */
+  --info-50: #f0f9ff;
+  --info-100: #e0f2fe;
+  --info-200: #bae6fd;
+  --info-300: #7dd3fc;
+  --info-400: #38bdf8;
+  --info-500: #0ea5e9;
+
+  /* Background & Surface */
+  --background: linear-gradient(135deg, #faf9ff 0%, #f0f4ff 100%);
+  --background-solid: #faf9ff;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+
+  /* Text Colors */
+  --text-primary: #292524;
+  --text-secondary: #78716c;
+  --text-muted: #a8a29e;
+
+  /* Border Colors */
+  --border-light: #ede9fe;
+  --border-medium: #d6d3d1;
+  --border-strong: #a8a29e;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.025em;
+}
+
+a {
+  font-weight: 600;
+  color: var(--accent-400);
+  text-decoration: inherit;
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--accent-500);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 12px;
+  border: 2px solid transparent;
+  padding: 0.75em 1.5em;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: -0.025em;
+}
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--accent-400);
+  outline-offset: 2px;
+}
+
+/* Typography Scale */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+p {
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Utility Classes */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}

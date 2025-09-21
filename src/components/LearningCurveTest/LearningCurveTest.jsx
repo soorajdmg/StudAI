@@ -1,0 +1,2608 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import api from '../../utils/api'
+import './LearningCurveTest.css'
+
+// Audio Teaching Component
+const AudioTeaching = ({ content, title }) => {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentUtterance, setCurrentUtterance] = useState(null)
+  const [voices, setVoices] = useState([])
+
+  // Load available voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices()
+      setVoices(availableVoices)
+    }
+
+    loadVoices()
+    window.speechSynthesis.onvoiceschanged = loadVoices
+  }, [])
+
+  const speakText = (htmlContent) => {
+    if ('speechSynthesis' in window) {
+      // Stop any current speech
+      window.speechSynthesis.cancel()
+
+      if (isPlaying) {
+        setIsPlaying(false)
+        setCurrentUtterance(null)
+        return
+      }
+
+      // Extract only text content from HTML and clean it up
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = htmlContent
+
+      // Get all paragraph text content and join with pauses
+      const paragraphs = Array.from(tempDiv.querySelectorAll('p'))
+        .map(p => p.textContent.trim())
+        .filter(text => text.length > 0 && text.includes('🔊'))
+        .map(text => text.replace(/🔊/g, '').replace(/"/g, '').trim())
+        .join('. ')
+
+      const utterance = new SpeechSynthesisUtterance(paragraphs)
+
+      // Get available voices and prefer a more natural one
+      const preferredVoice = voices.find(voice =>
+        voice.name.includes('Google') ||
+        voice.name.includes('Microsoft') ||
+        voice.name.includes('Natural') ||
+        voice.name.includes('Zira') ||
+        voice.name.includes('David') ||
+        (voice.lang.startsWith('en-') && !voice.name.includes('eSpeak'))
+      )
+
+      if (preferredVoice) {
+        utterance.voice = preferredVoice
+      }
+
+      // Make it sound more natural
+      utterance.rate = 0.9
+      utterance.pitch = 1.1
+      utterance.volume = 1
+
+      utterance.onstart = () => setIsPlaying(true)
+      utterance.onend = () => {
+        setIsPlaying(false)
+        setCurrentUtterance(null)
+      }
+
+      setCurrentUtterance(utterance)
+      window.speechSynthesis.speak(utterance)
+    } else {
+      alert('Text-to-speech is not supported in your browser')
+    }
+  }
+
+  return (
+    <div className="audio-teaching">
+      <h3>{title}</h3>
+      <button
+        className="audio-control"
+        onClick={() => speakText(content)}
+        disabled={!('speechSynthesis' in window)}
+      >
+        {isPlaying ? '⏸️ Pause' : '▶️ Listen'}
+      </button>
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    </div>
+  )
+}
+
+// Interactive Geometry Shape Calculator Component
+const InteractiveGeometryCalculator = () => {
+  const [selectedShape, setSelectedShape] = useState('rectangle')
+  const [dimensions, setDimensions] = useState({
+    width: 5,
+    height: 4,
+    radius: 3,
+    base: 6,
+    triangleHeight: 4
+  })
+
+  const calculateArea = () => {
+    switch (selectedShape) {
+      case 'rectangle':
+        return (dimensions.width * dimensions.height).toFixed(2)
+      case 'circle':
+        return (Math.PI * dimensions.radius * dimensions.radius).toFixed(2)
+      case 'triangle':
+        return (0.5 * dimensions.base * dimensions.triangleHeight).toFixed(2)
+      default:
+        return 0
+    }
+  }
+
+  const calculatePerimeter = () => {
+    switch (selectedShape) {
+      case 'rectangle':
+        return (2 * (dimensions.width + dimensions.height)).toFixed(2)
+      case 'circle':
+        return (2 * Math.PI * dimensions.radius).toFixed(2)
+      case 'triangle':
+        // Using an equilateral-ish triangle for simplicity
+        const side1 = dimensions.base
+        const side2 = Math.sqrt(Math.pow(dimensions.triangleHeight, 2) + Math.pow(dimensions.base / 2, 2))
+        const side3 = side2
+        return (side1 + side2 + side3).toFixed(2)
+      default:
+        return 0
+    }
+  }
+
+  const handleDimensionChange = (key, value) => {
+    setDimensions(prev => ({
+      ...prev,
+      [key]: parseInt(value)
+    }))
+  }
+
+  const renderShape = () => {
+    const area = calculateArea()
+    const perimeter = calculatePerimeter()
+
+    switch (selectedShape) {
+      case 'rectangle':
+        return (
+          <div className="shape-display">
+            <div
+              className="rectangle-shape"
+              style={{
+                width: `₹{dimensions.width * 20}px`,
+                height: `₹{dimensions.height * 20}px`
+              }}
+            >
+              <span className="shape-label">Rectangle</span>
+            </div>
+            <div className="shape-info">
+              <p><strong>Dimensions:</strong> {dimensions.width}×{dimensions.height}</p>
+              <p><strong>Area:</strong> {dimensions.width} × {dimensions.height} = {area} units²</p>
+              <p><strong>Perimeter:</strong> 2({dimensions.width} + {dimensions.height}) = {perimeter} units</p>
+            </div>
+          </div>
+        )
+      case 'circle':
+        return (
+          <div className="shape-display">
+            <div
+              className="circle-shape"
+              style={{
+                width: `₹{dimensions.radius * 40}px`,
+                height: `₹{dimensions.radius * 40}px`
+              }}
+            >
+              <span className="shape-label">Circle</span>
+            </div>
+            <div className="shape-info">
+              <p><strong>Radius:</strong> {dimensions.radius}</p>
+              <p><strong>Area:</strong> π × {dimensions.radius}² = {area} units²</p>
+              <p><strong>Circumference:</strong> 2π × {dimensions.radius} = {perimeter} units</p>
+            </div>
+          </div>
+        )
+      case 'triangle':
+        return (
+          <div className="shape-display">
+            <div className="triangle-container">
+              <svg
+                width={`₹{Math.max(dimensions.base * 20, 120)}`}
+                height={`₹{Math.max(dimensions.triangleHeight * 20, 100)}`}
+                className="triangle-shape"
+              >
+                <polygon
+                  points={`₹{dimensions.base * 10},20 20,₹{Math.max(dimensions.triangleHeight * 20, 100) - 20} ₹{dimensions.base * 20 - 20},₹{Math.max(dimensions.triangleHeight * 20, 100) - 20}`}
+                  fill="#10b981"
+                  stroke="#059669"
+                  strokeWidth="3"
+                />
+                <text
+                  x={`₹{dimensions.base * 10}`}
+                  y={`₹{Math.max(dimensions.triangleHeight * 20, 100) * 0.6}`}
+                  textAnchor="middle"
+                  className="shape-label"
+                  fill="white"
+                  fontSize="14"
+                  fontWeight="bold"
+                >
+                  Triangle
+                </text>
+              </svg>
+            </div>
+            <div className="shape-info">
+              <p><strong>Base:</strong> {dimensions.base}, <strong>Height:</strong> {dimensions.triangleHeight}</p>
+              <p><strong>Area:</strong> ½ × {dimensions.base} × {dimensions.triangleHeight} = {area} units²</p>
+              <p><strong>Perimeter:</strong> {dimensions.base} + sides ≈ {perimeter} units</p>
+            </div>
+          </div>
+        )
+    }
+  }
+
+  const renderControls = () => {
+    switch (selectedShape) {
+      case 'rectangle':
+        return (
+          <>
+            <div className="control-group">
+              <label>Width: <span>{dimensions.width}</span></label>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={dimensions.width}
+                onChange={(e) => handleDimensionChange('width', e.target.value)}
+                className="dimension-slider"
+              />
+            </div>
+            <div className="control-group">
+              <label>Height: <span>{dimensions.height}</span></label>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={dimensions.height}
+                onChange={(e) => handleDimensionChange('height', e.target.value)}
+                className="dimension-slider"
+              />
+            </div>
+          </>
+        )
+      case 'circle':
+        return (
+          <div className="control-group">
+            <label>Radius: <span>{dimensions.radius}</span></label>
+            <input
+              type="range"
+              min="1"
+              max="8"
+              value={dimensions.radius}
+              onChange={(e) => handleDimensionChange('radius', e.target.value)}
+              className="dimension-slider"
+            />
+          </div>
+        )
+      case 'triangle':
+        return (
+          <>
+            <div className="control-group">
+              <label>Base: <span>{dimensions.base}</span></label>
+              <input
+                type="range"
+                min="1"
+                max="12"
+                value={dimensions.base}
+                onChange={(e) => handleDimensionChange('base', e.target.value)}
+                className="dimension-slider"
+              />
+            </div>
+            <div className="control-group">
+              <label>Height: <span>{dimensions.triangleHeight}</span></label>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={dimensions.triangleHeight}
+                onChange={(e) => handleDimensionChange('triangleHeight', e.target.value)}
+                className="dimension-slider"
+              />
+            </div>
+          </>
+        )
+    }
+  }
+
+  return (
+    <div className="geometry-workshop">
+      <h4>🛠️ Interactive Shape Calculator</h4>
+      <p>Choose a shape and adjust its dimensions to see area and perimeter calculations!</p>
+
+      <div className="shape-selector">
+        <button
+          className={`shape-btn ₹{selectedShape === 'rectangle' ? 'active' : ''}`}
+          onClick={() => setSelectedShape('rectangle')}
+        >
+          📐 Rectangle
+        </button>
+        <button
+          className={`shape-btn ₹{selectedShape === 'circle' ? 'active' : ''}`}
+          onClick={() => setSelectedShape('circle')}
+        >
+          ⭕ Circle
+        </button>
+        <button
+          className={`shape-btn ₹{selectedShape === 'triangle' ? 'active' : ''}`}
+          onClick={() => setSelectedShape('triangle')}
+        >
+          🔺 Triangle
+        </button>
+      </div>
+
+      <div className="workshop-content">
+        <div className="shape-canvas">
+          {renderShape()}
+        </div>
+
+        <div className="control-panel">
+          <h5>🎛️ Adjust Dimensions</h5>
+          {renderControls()}
+
+          <div className="calculation-summary">
+            <div className="result-box area-box">
+              <h6>Area</h6>
+              <div className="result-value">{calculateArea()} units²</div>
+            </div>
+            <div className="result-box perimeter-box">
+              <h6>Perimeter</h6>
+              <div className="result-value">{calculatePerimeter()} units</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="learning-tips">
+        <h5>💡 What You're Learning</h5>
+        <ul>
+          <li>How changing dimensions affects area and perimeter differently</li>
+          <li>Why π (pi ≈ 3.14) is important for circles</li>
+          <li>How the ½ in triangle area formula works</li>
+          <li>Real-world applications of these calculations</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// Interactive Linear Equation Builder Component
+const InteractiveLinearEquationBuilder = () => {
+  const [equationSlots, setEquationSlots] = useState({
+    rate: null,
+    variable: null,
+    cost: null
+  })
+  const [cupsSold, setCupsSold] = useState(20)
+  const [draggedItem, setDraggedItem] = useState(null)
+  const [dragOverSlot, setDragOverSlot] = useState(null)
+
+  const tiles = [
+    { id: 'rate', text: '₹1.50', description: 'Price per Cup' },
+    { id: 'variable', text: 'x', description: 'Cups Sold' },
+    { id: 'cost', text: '₹10', description: 'Setup Cost' }
+  ]
+
+  const handleDragStart = (e, tileId) => {
+    console.log('Drag start:', tileId)
+    setDraggedItem(tileId)
+    e.dataTransfer.setData('text/plain', tileId)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e, slotType) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverSlot(slotType)
+  }
+
+  const handleDragEnter = (e) => {
+    e.preventDefault()
+  }
+
+  const handleDragLeave = (e) => {
+    e.preventDefault()
+    setDragOverSlot(null)
+  }
+
+  const handleDrop = (e, slotType) => {
+    e.preventDefault()
+    const tileId = e.dataTransfer.getData('text/plain') || draggedItem
+    console.log('Drop:', tileId, 'into slot:', slotType)
+
+    if (tileId && !Object.values(equationSlots).includes(tileId)) {
+      setEquationSlots(prev => ({
+        ...prev,
+        [slotType]: tileId
+      }))
+    }
+    setDraggedItem(null)
+  }
+
+  const calculateProfit = () => {
+    if (equationSlots.rate === 'rate' && equationSlots.variable === 'variable' && equationSlots.cost === 'cost') {
+      return (1.50 * cupsSold - 10).toFixed(2)
+    }
+    return 'Build equation first!'
+  }
+
+  const isEquationComplete = () => {
+    return equationSlots.rate && equationSlots.variable && equationSlots.cost
+  }
+
+  return (
+    <div className="business-simulator">
+      <h4>🏪 Run Your Lemonade Stand</h4>
+      <p>Drag and drop to build the profit equation: Profit = Rate × Variable - Cost</p>
+
+      <div className="business-controls">
+        <div className="variable-tiles">
+          {tiles.map(tile => (
+            <div
+              key={tile.id}
+              className={`tile draggable ₹{equationSlots.rate === tile.id || equationSlots.variable === tile.id || equationSlots.cost === tile.id ? 'used' : ''}`}
+              draggable={!(Object.values(equationSlots).includes(tile.id))}
+              onDragStart={(e) => handleDragStart(e, tile.id)}
+              style={{
+                opacity: Object.values(equationSlots).includes(tile.id) ? 0.5 : 1,
+                cursor: Object.values(equationSlots).includes(tile.id) ? 'not-allowed' : 'move'
+              }}
+            >
+              <strong>{tile.text}</strong>
+              <span>{tile.description}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="equation-builder">
+          <div className="equation-slot">Profit = </div>
+
+          <div
+            className={`equation-slot drop-zone ₹{dragOverSlot === 'rate' ? 'drag-over' : ''}`}
+            onDragOver={(e) => handleDragOver(e, 'rate')}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, 'rate')}
+            data-slot="rate"
+          >
+            {equationSlots.rate ? tiles.find(t => t.id === equationSlots.rate)?.text : '__'}
+          </div>
+
+          <div className="equation-slot">×</div>
+
+          <div
+            className={`equation-slot drop-zone ₹{dragOverSlot === 'variable' ? 'drag-over' : ''}`}
+            onDragOver={(e) => handleDragOver(e, 'variable')}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, 'variable')}
+            data-slot="variable"
+          >
+            {equationSlots.variable ? tiles.find(t => t.id === equationSlots.variable)?.text : '__'}
+          </div>
+
+          <div className="equation-slot">-</div>
+
+          <div
+            className={`equation-slot drop-zone ₹{dragOverSlot === 'cost' ? 'drag-over' : ''}`}
+            onDragOver={(e) => handleDragOver(e, 'cost')}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, 'cost')}
+            data-slot="cost"
+          >
+            {equationSlots.cost ? tiles.find(t => t.id === equationSlots.cost)?.text : '__'}
+          </div>
+        </div>
+      </div>
+
+      {isEquationComplete() && (
+        <div className="equation-success">
+          <p>✅ Perfect! Your equation is: <strong>Profit = ₹1.50 × x - ₹10</strong></p>
+          <p>This is a linear equation because profit changes at a constant rate with each cup sold.</p>
+        </div>
+      )}
+
+      <div className="scenario-tester">
+        <p>Test your equation: If you sell
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={cupsSold}
+            onChange={(e) => setCupsSold(parseInt(e.target.value) || 0)}
+            className="cups-input styled-input"
+          /> cups:
+        </p>
+        <div className="result-display">
+          <p><strong>Profit = ₹{calculateProfit()}</strong></p>
+          {isEquationComplete() && (
+            <p className="calculation-work">
+              Calculation: ₹1.50 × {cupsSold} - ₹10 = ₹{(1.50 * cupsSold).toFixed(2)} - ₹10 = ₹{calculateProfit()}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <button
+        className="reset-button"
+        onClick={() => setEquationSlots({ rate: null, variable: null, cost: null })}
+      >
+        🔄 Reset Equation
+      </button>
+    </div>
+  )
+}
+
+// Interactive Percentage Calculator Component
+const InteractivePercentageCalculator = () => {
+  const [gamesWon, setGamesWon] = useState(15)
+  const [totalGames, setTotalGames] = useState(20)
+
+  const winRate = totalGames > 0 ? ((gamesWon / totalGames) * 100).toFixed(1) : 0
+
+  return (
+    <div className="percentage-machine">
+      <h4>🎮 Gaming Stats Calculator</h4>
+      <p>You're a gamer tracking your win rate. Adjust the sliders to see percentages in action!</p>
+      <div className="game-stats">
+        <div className="stat-control">
+          <label>Games Won: <span id="wins">{gamesWon}</span></label>
+          <input
+            type="range"
+            min="0"
+            max="50"
+            value={gamesWon}
+            className="wins-slider"
+            onChange={(e) => {
+              const newWins = parseInt(e.target.value)
+              setGamesWon(newWins)
+              // Make sure wins don't exceed total games
+              if (newWins > totalGames) {
+                setTotalGames(newWins)
+              }
+            }}
+          />
+        </div>
+        <div className="stat-control">
+          <label>Total Games: <span id="total">{totalGames}</span></label>
+          <input
+            type="range"
+            min="1"
+            max="50"
+            value={totalGames}
+            className="total-slider"
+            onChange={(e) => {
+              const newTotal = parseInt(e.target.value)
+              setTotalGames(newTotal)
+              // Make sure wins don't exceed total games
+              if (gamesWon > newTotal) {
+                setGamesWon(newTotal)
+              }
+            }}
+          />
+        </div>
+        <div className="result-display">
+          <div className="win-rate">Win Rate: <span className="percentage">{winRate}%</span></div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `₹{winRate}%` }}></div>
+          </div>
+        </div>
+      </div>
+      <p className="formula">Formula: (Games Won ÷ Total Games) × 100 = Win Rate %</p>
+      <div className="live-calculation">
+        <p><strong>Live Calculation:</strong> ({gamesWon} ÷ {totalGames}) × 100 = {winRate}%</p>
+      </div>
+    </div>
+  )
+}
+
+// Kinesthetic Teaching Component
+const KinestheticTeaching = ({ content, title }) => {
+  const [draggedItem, setDraggedItem] = useState(null)
+  const [droppedItems, setDroppedItems] = useState({})
+  const [triangleBuilt, setTriangleBuilt] = useState(false)
+  const [showCalculation, setShowCalculation] = useState(false)
+
+  const handleDragStart = (e, item) => {
+    setDraggedItem(item)
+    e.dataTransfer.setData('text/plain', item)
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = (e, dropZone) => {
+    e.preventDefault()
+    if (draggedItem) {
+      const newDroppedItems = {
+        ...droppedItems,
+        [dropZone]: draggedItem
+      }
+      setDroppedItems(newDroppedItems)
+      setDraggedItem(null)
+
+      // Check if triangle is complete
+      if (Object.keys(newDroppedItems).length === 3 &&
+          newDroppedItems.bottom && newDroppedItems.right && newDroppedItems.diagonal) {
+        setTriangleBuilt(true)
+        setTimeout(() => setShowCalculation(true), 1000)
+      }
+    }
+  }
+
+  const getSideLength = (sideValue) => {
+    return parseFloat(sideValue.replace('m', ''))
+  }
+
+  const checkPythagoreanTheorem = () => {
+    const values = Object.values(droppedItems).map(getSideLength).sort((a, b) => a - b)
+    if (values.length === 3) {
+      const [a, b, c] = values
+      return Math.abs(a*a + b*b - c*c) < 0.01
+    }
+    return false
+  }
+
+  const getTriangleComplete = () => {
+    return Object.keys(droppedItems).length === 3 &&
+           droppedItems.bottom && droppedItems.right && droppedItems.diagonal
+  }
+
+  const getTriangleVisualization = () => {
+    if (!triangleBuilt) return null
+
+    // Get actual measurements from specific dropzones
+    const baseMeasurement = getSideLength(droppedItems.bottom) // horizontal base
+    const heightMeasurement = getSideLength(droppedItems.right) // vertical height
+    const hypotenuseMeasurement = getSideLength(droppedItems.diagonal) // diagonal hypotenuse
+
+    const isValidTriangle = checkPythagoreanTheorem()
+
+    return (
+      <div className="triangle-visualization">
+        <h4>🎉 Your Triangle:</h4>
+        <div className="visual-triangle">
+          <svg width="300" height="200" viewBox="0 0 300 200">
+            {/* Triangle */}
+            <polygon
+              points="50,150 200,150 200,50"
+              fill={isValidTriangle ? "#10b981" : "#ef4444"}
+              fillOpacity="0.3"
+              stroke={isValidTriangle ? "#10b981" : "#ef4444"}
+              strokeWidth="3"
+            />
+
+            {/* Side labels - correctly mapped */}
+            <text x="125" y="170" textAnchor="middle" className="side-label">
+              Base: {baseMeasurement}m
+            </text>
+            <text x="215" y="100" textAnchor="middle" className="side-label">
+              Height: {heightMeasurement}m
+            </text>
+            <text x="115" y="95" textAnchor="middle" className="side-label" transform="rotate(-45 115 95)">
+              Hypotenuse: {hypotenuseMeasurement}m
+            </text>
+
+            {/* Right angle indicator */}
+            <path d="M 185 150 L 185 135 L 200 135" stroke="#666" strokeWidth="2" fill="none"/>
+          </svg>
+        </div>
+
+        {showCalculation && (
+          <div className="theorem-explanation">
+            <h4>🧮 Let's Check the Pythagorean Theorem:</h4>
+            <div className="calculation-steps">
+              <p><strong>Formula:</strong> a² + b² = c²</p>
+              <p><strong>Your measurements:</strong></p>
+              <p>• Base (a) = {baseMeasurement}m</p>
+              <p>• Height (b) = {heightMeasurement}m</p>
+              <p>• Hypotenuse (c) = {hypotenuseMeasurement}m</p>
+
+              <div className="calculation-work">
+                <p><strong>Calculation:</strong></p>
+                <p>{baseMeasurement}² + {heightMeasurement}² = {(baseMeasurement*baseMeasurement).toFixed(2)} + {(heightMeasurement*heightMeasurement).toFixed(2)} = {(baseMeasurement*baseMeasurement + heightMeasurement*heightMeasurement).toFixed(2)}</p>
+                <p>{hypotenuseMeasurement}² = {(hypotenuseMeasurement*hypotenuseMeasurement).toFixed(2)}</p>
+
+                {isValidTriangle ? (
+                  <div className="success-message">
+                    <p>✅ <strong>Perfect!</strong> {(baseMeasurement*baseMeasurement + heightMeasurement*heightMeasurement).toFixed(2)} = {(hypotenuseMeasurement*hypotenuseMeasurement).toFixed(2)}</p>
+                    <p>This proves it's a right triangle! The Pythagorean theorem works!</p>
+                  </div>
+                ) : (
+                  <div className="error-message">
+                    <p>❌ <strong>Hmm...</strong> {(baseMeasurement*baseMeasurement + heightMeasurement*heightMeasurement).toFixed(2)} ≠ {(hypotenuseMeasurement*hypotenuseMeasurement).toFixed(2)}</p>
+                    <p>This doesn't form a perfect right triangle. Try different measurements!</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              className="reset-button"
+              onClick={() => {
+                setDroppedItems({})
+                setTriangleBuilt(false)
+                setShowCalculation(false)
+              }}
+            >
+              🔄 Try Again
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (content.includes('percentage')) {
+    return (
+      <div className="kinesthetic-teaching">
+        <h3>{title}</h3>
+        <InteractivePercentageCalculator />
+      </div>
+    )
+  }
+
+  if (content.includes('geometry-shape-calculator')) {
+    return (
+      <div className="kinesthetic-teaching">
+        <h3>{title}</h3>
+        <InteractiveGeometryCalculator />
+      </div>
+    )
+  }
+
+  if (content.includes('lemonade')) {
+    console.log('Rendering Interactive Linear Equation Builder')
+    return (
+      <div className="kinesthetic-teaching">
+        <h3>{title}</h3>
+        <InteractiveLinearEquationBuilder />
+      </div>
+    )
+  }
+
+  if (content.includes('carpenter')) {
+    return (
+      <div className="kinesthetic-teaching">
+        <h3>{title}</h3>
+        <div className="interactive-demo">
+          <h4>📐 Carpenter's Challenge: Build a Right Triangle!</h4>
+          <p>Drag the wooden boards to build a triangle. Can you make a perfect right triangle using the Pythagorean theorem?</p>
+
+          <div className="challenge-instructions">
+            <p>🎯 <strong>Challenge:</strong> Build a perfect right triangle!</p>
+            <p>📐 Drag wooden boards to the purple dashed lines. Use boards that satisfy: a² + b² = c²</p>
+            <p>💡 <strong>Hint:</strong> Try 0.9m + 1.2m + 1.5m (they form a 3:4:5 triangle!)</p>
+          </div>
+
+          <div className="carpenter-workspace">
+            <div className="wood-pieces">
+              <div
+                className="draggable-wood short"
+                draggable
+                onDragStart={(e) => handleDragStart(e, '0.9m')}
+                style={{ display: Object.values(droppedItems).includes('0.9m') ? 'none' : 'flex' }}
+              >
+                📏 0.9m board
+              </div>
+              <div
+                className="draggable-wood medium"
+                draggable
+                onDragStart={(e) => handleDragStart(e, '1.2m')}
+                style={{ display: Object.values(droppedItems).includes('1.2m') ? 'none' : 'flex' }}
+              >
+                📏 1.2m board
+              </div>
+              <div
+                className="draggable-wood long"
+                draggable
+                onDragStart={(e) => handleDragStart(e, '1.5m')}
+                style={{ display: Object.values(droppedItems).includes('1.5m') ? 'none' : 'flex' }}
+              >
+                📏 1.5m board (hypotenuse)
+              </div>
+              <div
+                className="draggable-wood extra1"
+                draggable
+                onDragStart={(e) => handleDragStart(e, '2.0m')}
+                style={{ display: Object.values(droppedItems).includes('2.0m') ? 'none' : 'flex' }}
+              >
+                📏 2.0m board
+              </div>
+              <div
+                className="draggable-wood extra2"
+                draggable
+                onDragStart={(e) => handleDragStart(e, '0.6m')}
+                style={{ display: Object.values(droppedItems).includes('0.6m') ? 'none' : 'flex' }}
+              >
+                📏 0.6m board
+              </div>
+              <div
+                className="draggable-wood extra3"
+                draggable
+                onDragStart={(e) => handleDragStart(e, '1.8m')}
+                style={{ display: Object.values(droppedItems).includes('1.8m') ? 'none' : 'flex' }}
+              >
+                📏 1.8m board
+              </div>
+            </div>
+
+            <div className="triangle-construction-area">
+              <div className="construction-workspace">
+                {/* Construction guide lines */}
+                <svg
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none',
+                    zIndex: 0
+                  }}
+                  viewBox="0 0 500 350"
+                >
+                  <defs>
+                    <pattern id="dots" patternUnits="userSpaceOnUse" width="15" height="15">
+                      <circle cx="7.5" cy="7.5" r="1" fill="#e5e7eb"/>
+                    </pattern>
+                  </defs>
+                  <rect width="500" height="350" fill="url(#dots)"/>
+
+                  {/* Guide triangle outline - Perfect right triangle 3:4:5 ratio */}
+                  <polygon
+                    points="50,265 250,265 250,90"
+                    fill="none"
+                    stroke="#8b5cf6"
+                    strokeWidth="3"
+                    strokeDasharray="8,4"
+                    opacity="0.6"
+                  />
+
+                  {/* Corner markers */}
+                  <circle cx="50" cy="265" r="6" fill="#8b5cf6" opacity="0.8"/>
+                  <circle cx="250" cy="265" r="6" fill="#8b5cf6" opacity="0.8"/>
+                  <circle cx="250" cy="90" r="6" fill="#8b5cf6" opacity="0.8"/>
+
+                  {/* Right angle indicator */}
+                  <path d="M 235 265 L 235 250 L 250 250" stroke="#8b5cf6" strokeWidth="3" fill="none" opacity="0.8"/>
+
+                  {/* Side labels on the guide */}
+                  <text x="150" y="285" textAnchor="middle" fill="#6b46c1" fontSize="12" fontWeight="600">Base</text>
+                  <text x="270" y="175" textAnchor="middle" fill="#6b46c1" fontSize="12" fontWeight="600" transform="rotate(90 270 175)">Height</text>
+                  <text x="140" y="175" textAnchor="middle" fill="#6b46c1" fontSize="12" fontWeight="600" transform="rotate(-37 140 175)">Hypotenuse</text>
+                </svg>
+
+                {/* Bottom horizontal side - Base */}
+                <div
+                  className="drop-zone horizontal-side"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'bottom')}
+                  style={{
+                    position: 'absolute',
+                    bottom: '15px',
+                    left: '45px',
+                    width: '210px',
+                    height: '45px',
+                    zIndex: 2
+                  }}
+                >
+                  {droppedItems.bottom ? (
+                    <div className="wooden-piece horizontal">
+                      📏 {droppedItems.bottom}
+                    </div>
+                  ) : (
+                    <div className="drop-hint horizontal">
+                      Place base here
+                    </div>
+                  )}
+                </div>
+
+                {/* Right vertical side - Height */}
+                <div
+                  className="drop-zone vertical-side"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'right')}
+                  style={{
+                    position: 'absolute',
+                    right: '215px',
+                    top: '85px',
+                    width: '45px',
+                    height: '120px',
+                    zIndex: 2
+                  }}
+                >
+                  {droppedItems.right ? (
+                    <div className="wooden-piece vertical">
+                      📏 {droppedItems.right}
+                    </div>
+                  ) : (
+                    <div className="drop-hint vertical">
+                      Place height here
+                    </div>
+                  )}
+                </div>
+
+                {/* Diagonal hypotenuse */}
+                <div
+                  className="drop-zone diagonal-side"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'diagonal')}
+                  style={{
+                    position: 'absolute',
+                    top: '120px',
+                    left: '65px',
+                    width: '200px',
+                    height: '45px',
+                    transform: 'rotate(-36.87deg)',
+                    transformOrigin: 'left center',
+                    zIndex: 1
+                  }}
+                >
+                  {droppedItems.diagonal ? (
+                    <div className="wooden-piece diagonal">
+                      📏 {droppedItems.diagonal}
+                    </div>
+                  ) : (
+                    <div className="drop-hint diagonal">
+                      Place hypotenuse here
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {getTriangleVisualization()}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="kinesthetic-teaching">
+      <h3>{title}</h3>
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    </div>
+  )
+}
+
+const LearningCurveTest = () => {
+  const [selectedTopic, setSelectedTopic] = useState(null)
+  const [currentPhase, setCurrentPhase] = useState('topic-selection') // topic-selection, teaching, testing, results
+  const [questions, setQuestions] = useState([])
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [answers, setAnswers] = useState([])
+  const [questionStartTime, setQuestionStartTime] = useState(null)
+  const [testData, setTestData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [selectedLearningStyle, setSelectedLearningStyle] = useState(null)
+  const [showDetailedResults, setShowDetailedResults] = useState(false)
+
+  const { user, updateUser } = useAuth()
+  const navigate = useNavigate()
+
+  // Available topics for the learning curve test
+  const topics = [
+    {
+      id: 'pythagoras',
+      title: 'Pythagorean Theorem',
+      description: 'Learn about right triangles and the relationship between their sides',
+      difficulty: 'Beginner',
+      icon: '📐'
+    },
+    {
+      id: 'percentages',
+      title: 'Percentage Calculations',
+      description: 'Master the fundamentals of calculating percentages',
+      difficulty: 'Beginner',
+      icon: '📊'
+    },
+    {
+      id: 'linear-equations',
+      title: 'Linear Equations',
+      description: 'Solve equations with one variable step by step',
+      difficulty: 'Beginner',
+      icon: '📈'
+    },
+    {
+      id: 'basic-geometry',
+      title: 'Basic Geometry',
+      description: 'Understand shapes, angles, and geometric relationships',
+      difficulty: 'Beginner',
+      icon: '🔺'
+    }
+  ]
+
+  // Teaching content based on learning type and topic
+  const getTeachingContent = (topic, learningType) => {
+    const content = {
+      pythagoras: {
+        visual: {
+          type: 'animation',
+          title: 'Visual: Pythagorean Theorem',
+          content: `
+            <div class="visual-teaching">
+              <h3>The Pythagorean Theorem: a² + b² = c²</h3>
+              <div class="real-world-example">
+                <h4>🏠 Real Example: Ladder Against a Wall</h4>
+                <div class="ladder-diagram">
+                  <div class="wall"></div>
+                  <div class="ground"></div>
+                  <div class="ladder"></div>
+                  <div class="measurements">
+                    <span class="wall-height">Wall: 3.6 meters</span>
+                    <span class="ground-distance">Ground: 1.5 meters</span>
+                    <span class="ladder-length">Ladder: ? meters</span>
+                  </div>
+                </div>
+              </div>
+              <div class="triangle-demo">
+                <div class="right-triangle">
+                  <div class="side-a">a = 1.5m</div>
+                  <div class="side-b">b = 3.6m</div>
+                  <div class="side-c">c = 3.9m</div>
+                </div>
+                <div class="squares">
+                  <div class="square-a">1.5² = 2.25</div>
+                  <div class="square-b">3.6² = 12.96</div>
+                  <div class="square-c">3.9² = 15.21</div>
+                </div>
+              </div>
+              <p><strong>Answer:</strong> 2.25 + 12.96 = 15.21, so the ladder is √15.21 ≈ 3.9 meters long!</p>
+            </div>
+          `
+        },
+        auditory: {
+          type: 'audio',
+          title: 'Audio: Pythagorean Theorem',
+          content: `
+            <div class="audio-teaching">
+              <h3>🎧 Listen and Learn: Pythagorean Theorem</h3>
+              <div class="audio-explanation">
+                <div class="story-problem">
+                  <h4>📖 Story Time: The Firefighter's Dilemma</h4>
+                  <p>🔊 "Imagine you're a firefighter. Your ladder truck arrives at a burning building. The building is 6 meters tall, and you can only park 4.5 meters away from the building due to safety regulations."</p>
+                  <p>🔊 "How long does your ladder need to be to reach the top of the building? This is where the Pythagorean theorem comes to the rescue!"</p>
+                  <p>🔊 "The building height is one side (6 meters), the distance from the building is another side (4.5 meters), and the ladder is the hypotenuse."</p>
+                  <p>🔊 "So: 6² + 4.5² = ladder². That's 36 + 20.25 = 56.25. The square root of 56.25 is 7.5 meters!"</p>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        kinesthetic: {
+          type: 'interactive',
+          title: 'Interactive: Pythagorean Theorem',
+          content: `
+            <div class="kinesthetic-teaching">
+              <h3>🎮 Hands-On: Build a Right Triangle</h3>
+              <div class="interactive-demo">
+                <h4>📐 Carpenter's Challenge</h4>
+                <p>You're building a wooden frame. Drag the pieces to create a perfect right triangle:</p>
+                <div class="carpenter-workspace">
+                  <div class="wood-pieces">
+                    <div class="draggable-wood short" data-length="0.9">0.9m board</div>
+                    <div class="draggable-wood medium" data-length="1.2">1.2m board</div>
+                    <div class="draggable-wood long" data-length="1.5">1.5m board</div>
+                  </div>
+                  <div class="work-area">
+                    <div class="drop-zone corner">Corner (90°)</div>
+                    <div class="drop-zone side1">Short side</div>
+                    <div class="drop-zone side2">Long side</div>
+                  </div>
+                </div>
+                <div class="equation-builder">
+                  <p>Check: 0.9² + 1.2² = 0.81 + 1.44 = 2.25 = 1.5²</p>
+                </div>
+              </div>
+            </div>
+          `
+        }
+      },
+      percentages: {
+        visual: {
+          type: 'chart',
+          title: 'Visual: Percentage Calculations',
+          content: `
+            <div class="visual-teaching">
+              <h3>💰 Understanding Percentages Through Shopping</h3>
+              <div class="shopping-scenario">
+                <h4>🛍️ Black Friday Sale!</h4>
+                <div class="product-showcase">
+                  <div class="product">
+                    <img class="product-image" alt="Sneakers">👟</img>
+                    <div class="price-original">₹80</div>
+                    <div class="discount-label">25% OFF!</div>
+                    <div class="price-final">₹60</div>
+                  </div>
+                </div>
+              </div>
+              <div class="percentage-breakdown">
+                <div class="visual-calculation">
+                  <h5>💡 Breaking Down ₹80 into 25% chunks:</h5>
+                  <div class="money-blocks">
+                    <div class="block keep">₹20 (25%) - Keep</div>
+                    <div class="block keep">₹20 (25%) - Keep</div>
+                    <div class="block keep">₹20 (25%) - Keep</div>
+                    <div class="block discount">₹20 (25%) - SAVED!</div>
+                  </div>
+                  <div class="calculation-summary">
+                    <p><strong>You Pay:</strong> ₹20 + ₹20 + ₹20 = ₹60</p>
+                    <p><strong>You Save:</strong> ₹20 (the 25% discount)</p>
+                  </div>
+                </div>
+                <p><strong>Calculation:</strong> 25% of ₹80 = 0.25 × ₹80 = ₹20 savings</p>
+                <p><strong>Final Price:</strong> ₹80 - ₹20 = ₹60</p>
+              </div>
+            </div>
+          `
+        },
+        auditory: {
+          type: 'audio',
+          title: 'Audio: Percentage Calculations',
+          content: `
+            <div class="audio-teaching">
+              <h3>🎧 Listen and Learn: Percentages</h3>
+              <div class="audio-explanation">
+                <div class="restaurant-story">
+                  <h4>🍽️ The Restaurant Tip Calculator</h4>
+                  <p>🔊 "You're at a restaurant with friends. The bill comes to ₹50. You want to leave an 18% tip because the service was great."</p>
+                  <p>🔊 "Here's how to calculate it in your head: 18% means 18 out of every 100 dollars."</p>
+                  <p>🔊 "Break it down: 10% of ₹50 is ₹5. 8% is a bit tricky, but 8% = 10% - 2%, so that's ₹5 - ₹1 = ₹4."</p>
+                  <p>🔊 "So 18% = 10% + 8% = ₹5 + ₹4 = ₹9. Your total bill is ₹50 + ₹9 = ₹59."</p>
+                  <p>🔊 "Pro tip: For 20% tip, just double the 10% amount. For 15%, take half of 10% and add it to 10%."</p>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        kinesthetic: {
+          type: 'interactive',
+          title: 'Interactive: Percentage Calculations',
+          content: `
+            <div class="kinesthetic-teaching">
+              <h3>🎰 Interactive Percentage Machine</h3>
+              <div class="percentage-machine">
+                <h4>🎮 Gaming Stats Calculator</h4>
+                <p>You're a gamer tracking your win rate. Adjust the sliders to see percentages in action!</p>
+                <div class="game-stats">
+                  <div class="stat-control">
+                    <label>Games Won: <span id="wins">15</span></label>
+                    <input type="range" min="0" max="50" value="15" class="wins-slider">
+                  </div>
+                  <div class="stat-control">
+                    <label>Total Games: <span id="total">20</span></label>
+                    <input type="range" min="1" max="50" value="20" class="total-slider">
+                  </div>
+                  <div class="result-display">
+                    <div class="win-rate">Win Rate: <span class="percentage">75%</span></div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 75%"></div>
+                    </div>
+                  </div>
+                </div>
+                <p class="formula">Formula: (Games Won ÷ Total Games) × 100 = Win Rate %</p>
+              </div>
+            </div>
+          `
+        }
+      },
+      'linear-equations': {
+        visual: {
+          type: 'graph',
+          title: 'Visual: Linear Equations',
+          content: `
+            <div class="visual-teaching">
+              <h3>📈 Understanding Linear Equations Visually</h3>
+
+              <div class="linear-equation-basics">
+                <h4>🧮 What Makes an Equation Linear?</h4>
+                <div class="equation-structure">
+                  <div class="equation-part">
+                    <h5>📏 Standard Form: y = mx + b</h5>
+                    <div class="form-breakdown">
+                      <span class="variable">y</span> = output (what we calculate)
+                      <span class="variable">m</span> = rate of change (slope)
+                      <span class="variable">x</span> = input (what we control)
+                      <span class="variable">b</span> = starting value (y-intercept)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="real-world-examples">
+                <h4>🌟 Real-World Linear Relationships</h4>
+
+                <div class="example-grid">
+                  <div class="example-card">
+                    <h5>🚗 Taxi Ride Cost</h5>
+                    <div class="equation">Cost = ₹3 + ₹2 × miles</div>
+                    <div class="explanation">
+                      <p><strong>₹3</strong> = base fare (b)</p>
+                      <p><strong>₹2</strong> = rate per mile (m)</p>
+                      <p><strong>miles</strong> = distance traveled (x)</p>
+                    </div>
+                    <div class="example-calc">
+                      <p>5 miles → ₹3 + ₹2(5) = <strong>₹13</strong></p>
+                      <p>10 miles → ₹3 + ₹2(10) = <strong>₹23</strong></p>
+                    </div>
+                  </div>
+
+                  <div class="example-card">
+                    <h5>🏃‍♂️ Marathon Training</h5>
+                    <div class="equation">Distance = 5 + 2 × week</div>
+                    <div class="explanation">
+                      <p><strong>5</strong> = starting miles (b)</p>
+                      <p><strong>2</strong> = miles added per week (m)</p>
+                      <p><strong>week</strong> = training week number (x)</p>
+                    </div>
+                    <div class="example-calc">
+                      <p>Week 3 → 5 + 2(3) = <strong>11 miles</strong></p>
+                      <p>Week 8 → 5 + 2(8) = <strong>21 miles</strong></p>
+                    </div>
+                  </div>
+
+                  <div class="example-card">
+                    <h5>💰 Savings Account</h5>
+                    <div class="equation">Balance = ₹100 + ₹25 × week</div>
+                    <div class="explanation">
+                      <p><strong>₹100</strong> = initial deposit (b)</p>
+                      <p><strong>₹25</strong> = weekly savings (m)</p>
+                      <p><strong>week</strong> = number of weeks (x)</p>
+                    </div>
+                    <div class="example-calc">
+                      <p>Week 4 → ₹100 + ₹25(4) = <strong>₹200</strong></p>
+                      <p>Week 12 → ₹100 + ₹25(12) = <strong>₹400</strong></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="key-insight">
+                <h4>💡 Why They're Called "Linear"</h4>
+                <p>These equations create <strong>straight lines</strong> when graphed because the rate of change is constant. Each step forward in 'x' produces the same change in 'y'.</p>
+                <div class="linear-properties">
+                  <div class="property">📊 <strong>Constant Rate:</strong> Output changes by the same amount for each unit of input</div>
+                  <div class="property">📈 <strong>Straight Line:</strong> When plotted on a graph, forms a perfect straight line</div>
+                  <div class="property">🔄 <strong>Predictable:</strong> Easy to calculate future values using the pattern</div>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        auditory: {
+          type: 'audio',
+          title: 'Audio: Linear Equations',
+          content: `
+            <div class="audio-teaching">
+              <h3>🎧 Listen and Learn: Linear Equations</h3>
+              <div class="audio-explanation">
+                <div class="delivery-story">
+                  <h4>🚚 The Pizza Delivery Problem</h4>
+                  <p>🔊 "Meet Sarah, a pizza delivery driver. She gets paid ₹8 per hour plus ₹2 for each delivery she makes."</p>
+                  <p>🔊 "We can write this as an equation: Total Pay = 8h + 2d, where h is hours worked and d is deliveries made."</p>
+                  <p>🔊 "This is a linear equation because when we graph it, it creates a straight line. The more deliveries or hours, the more money she makes."</p>
+                  <p>🔊 "Let's say Sarah works 6 hours and makes 12 deliveries. Her pay would be: 8(6) + 2(12) = 48 + 24 = ₹72."</p>
+                  <p>🔊 "The beauty of linear equations is that they help us predict outcomes. If Sarah wants to earn ₹100, we can solve: 100 = 8h + 2d to find the right combination of hours and deliveries."</p>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        kinesthetic: {
+          type: 'interactive',
+          title: 'Interactive: Linear Equations',
+          content: `lemonade-stand-equation-builder`
+        }
+      },
+      'basic-geometry': {
+        visual: {
+          type: 'shapes',
+          title: 'Visual: Basic Geometry',
+          content: `
+            <div class="visual-teaching">
+              <h3>📐 Understanding Basic Geometry: Area & Perimeter</h3>
+
+              <div class="geometry-fundamentals">
+                <h4>🔍 What Are We Measuring?</h4>
+                <div class="concept-grid">
+                  <div class="concept-card">
+                    <h5>📏 Perimeter</h5>
+                    <p>The distance around the outside of a shape</p>
+                    <div class="concept-visual">
+                      <div class="perimeter-demo">🔲</div>
+                      <span>Like walking around the edge</span>
+                    </div>
+                  </div>
+                  <div class="concept-card">
+                    <h5>🏠 Area</h5>
+                    <p>How much space is inside a shape</p>
+                    <div class="concept-visual">
+                      <div class="area-demo">⬜</div>
+                      <span>Like filling it with paint</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="real-world-geometry">
+                <h4>🌟 Real-World Examples</h4>
+
+                <div class="example-showcase">
+                  <div class="geometry-example">
+                    <h5>🏡 Buying Carpet for Your Room</h5>
+                    <div class="shape-demo rectangle-demo">
+                      <div class="room-shape">
+                        <span class="dimension-label top">4 meters</span>
+                        <span class="dimension-label side">3 meters</span>
+                      </div>
+                    </div>
+                    <div class="calculation-box">
+                      <p><strong>Area needed:</strong> 4 × 3 = 12 m²</p>
+                      <p><strong>Trim needed:</strong> 4 + 3 + 4 + 3 = 14 meters</p>
+                      <p class="insight">💡 Area tells us how much carpet to buy, perimeter tells us how much trim!</p>
+                    </div>
+                  </div>
+
+                  <div class="geometry-example">
+                    <h5>🏊 Building a Round Pool</h5>
+                    <div class="shape-demo circle-demo">
+                      <div class="pool-shape">
+                        <span class="radius-label">5m radius</span>
+                      </div>
+                    </div>
+                    <div class="calculation-box">
+                      <p><strong>Pool surface:</strong> π × 5² = 3.14 × 25 = 78.5 m²</p>
+                      <p><strong>Fence around pool:</strong> 2 × π × 5 = 31.4 meters</p>
+                      <p class="insight">💡 Bigger radius = much bigger area!</p>
+                    </div>
+                  </div>
+
+                  <div class="geometry-example">
+                    <h5>⛺ Setting Up a Triangle Tent</h5>
+                    <div class="shape-demo triangle-demo">
+                      <div class="tent-shape">
+                        <span class="dimension-label base">6m base</span>
+                        <span class="dimension-label height">4m height</span>
+                      </div>
+                    </div>
+                    <div class="calculation-box">
+                      <p><strong>Floor space:</strong> ½ × 6 × 4 = 12 m²</p>
+                      <p><strong>Triangle sides:</strong> 6 + 5 + 5 = 16 meters</p>
+                      <p class="insight">💡 Triangles always use ½ in area formula!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="formula-reference">
+                <h4>📚 Essential Formulas</h4>
+                <div class="formula-grid">
+                  <div class="formula-card">
+                    <h5>Rectangle</h5>
+                    <div class="formula">Area = length × width</div>
+                    <div class="formula">Perimeter = 2(l + w)</div>
+                  </div>
+                  <div class="formula-card">
+                    <h5>Circle</h5>
+                    <div class="formula">Area = π × radius²</div>
+                    <div class="formula">Perimeter = 2 × π × radius</div>
+                  </div>
+                  <div class="formula-card">
+                    <h5>Triangle</h5>
+                    <div class="formula">Area = ½ × base × height</div>
+                    <div class="formula">Perimeter = side + side + side</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        auditory: {
+          type: 'audio',
+          title: 'Audio: Basic Geometry',
+          content: `
+            <div class="audio-teaching">
+              <h3>🎧 Listen and Learn: Basic Geometry</h3>
+              <div class="audio-explanation">
+                <div class="room-renovation">
+                  <h4>🏠 Home Renovation Story</h4>
+                  <p>🔊 "Meet Sarah, who's renovating her kitchen. She needs to calculate how much tile, paint, and trim she'll need."</p>
+                  <p>🔊 "Her kitchen floor is rectangular, 4 meters long and 3 meters wide. To find how many tiles she needs, she calculates the area: length times width equals 4 times 3, which is 12 square meters."</p>
+                  <p>🔊 "For the trim around the floor, she needs the perimeter: 4 + 3 + 4 + 3 = 14 meters of trim."</p>
+                  <p>🔊 "She also wants to paint a circular accent wall. If the radius is 2 meters, the area is pi times radius squared: 3.14 times 4 equals about 12.6 square meters."</p>
+                  <p>🔊 "Understanding area and perimeter helps Sarah buy exactly what she needs - no waste, no shortage!"</p>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        kinesthetic: {
+          type: 'interactive',
+          title: 'Interactive: Basic Geometry',
+          content: `geometry-shape-calculator`
+        }
+      }
+    }
+
+    return content[topic]?.[learningType] || content[topic]?.visual
+  }
+
+  // Generate questions based on topic with increasing difficulty
+  const generateQuestions = (topic) => {
+    const questionSets = {
+      pythagoras: [
+        {
+          question: "📐 A right triangle has sides of 3 meters and 4 meters. What's the length of the longest side?",
+          answer: "5",
+          explanation: "Using a² + b² = c²: 3² + 4² = 9 + 16 = 25, so c = √25 = 5 meters",
+          difficulty: 1
+        },
+        {
+          question: "🏠 A ladder is 5 meters long and leans against a wall. The bottom is 3 meters from the wall. How high up does it reach?",
+          answer: "4",
+          explanation: "Using a² + b² = c²: 3² + height² = 5², so height² = 25 - 9 = 16, height = 4 meters",
+          difficulty: 1
+        },
+        {
+          question: "📱 A phone screen is 6cm wide and 8cm tall. What's the diagonal length?",
+          answer: "10",
+          explanation: "Using a² + b² = c²: 6² + 8² = 36 + 64 = 100, so diagonal = √100 = 10 cm",
+          difficulty: 2
+        },
+        {
+          question: "🏗️ A support beam goes from the ground to a wall. The wall is 12 meters high and the beam touches the ground 5 meters away. How long is the beam?",
+          answer: "13",
+          explanation: "Using a² + b² = c²: 5² + 12² = 25 + 144 = 169, so beam = √169 = 13 meters",
+          difficulty: 2
+        },
+        {
+          question: "📺 A 50-inch TV has a width of 40 inches. What's the height? (TV size is measured diagonally)",
+          answer: "30",
+          explanation: "Using a² + b² = c²: 40² + height² = 50², so height² = 2500 - 1600 = 900, height = 30 inches",
+          difficulty: 3
+        },
+        {
+          question: "⚽ A rectangular field is 80 meters long and 60 meters wide. How far is it from one corner to the opposite corner?",
+          answer: "100",
+          explanation: "Using a² + b² = c²: 80² + 60² = 6400 + 3600 = 10000, so diagonal = √10000 = 100 meters",
+          difficulty: 3
+        },
+        {
+          question: "🚁 A helicopter is 150 meters high and 200 meters horizontally from a landing spot. How far does it need to travel in a straight line?",
+          answer: "250",
+          explanation: "Using a² + b² = c²: 150² + 200² = 22500 + 40000 = 62500, so distance = √62500 = 250 meters",
+          difficulty: 4
+        },
+        {
+          question: "🏔️ A hiker climbs 240 meters up and 320 meters forward on a slope. What's the total straight-line distance traveled?",
+          answer: "400",
+          explanation: "Using a² + b² = c²: 240² + 320² = 57600 + 102400 = 160000, so distance = √160000 = 400 meters",
+          difficulty: 4
+        }
+      ],
+      percentages: [
+        {
+          question: "🍕 What is 50% of 20?",
+          answer: "10",
+          explanation: "50% of 20 = 0.5 × 20 = 10",
+          difficulty: 1
+        },
+        {
+          question: "💰 What is 25% of ₹100?",
+          answer: "25",
+          explanation: "25% of ₹100 = 0.25 × ₹100 = ₹25",
+          difficulty: 1
+        },
+        {
+          question: "🛍️ A ₹20 item is on sale for 10% off. How much do you save?",
+          answer: "2",
+          explanation: "10% of ₹20 = 0.10 × ₹20 = ₹2 savings",
+          difficulty: 2
+        },
+        {
+          question: "🎮 You won 3 out of 4 games. What's your win percentage?",
+          answer: "75",
+          explanation: "(3 ÷ 4) × 100 = 0.75 × 100 = 75%",
+          difficulty: 2
+        },
+        {
+          question: "🍕 Your pizza bill is ₹25. You want to leave a 20% tip. How much tip should you leave?",
+          answer: "5",
+          explanation: "20% of ₹25 = 0.20 × ₹25 = ₹5",
+          difficulty: 3
+        },
+        {
+          question: "📱 Your phone battery was at 100% and you used 30%. What percentage is left?",
+          answer: "70",
+          explanation: "100% - 30% = 70% remaining",
+          difficulty: 3
+        },
+        {
+          question: "💰 You have ₹200 and spend 15% on food. How much money do you have left?",
+          answer: "170",
+          explanation: "Spent: 15% of ₹200 = ₹30. Left: ₹200 - ₹30 = ₹170",
+          difficulty: 4
+        },
+        {
+          question: "📈 An investment grows from ₹400 to ₹500. What's the percentage increase?",
+          answer: "25",
+          explanation: "Increase = ₹500 - ₹400 = ₹100. Percentage = (₹100 ÷ ₹400) × 100 = 25%",
+          difficulty: 4
+        }
+      ],
+      'linear-equations': [
+        {
+          question: "🍎 If x + 5 = 8, what is x?",
+          answer: "3",
+          explanation: "x + 5 = 8, so x = 8 - 5 = 3",
+          difficulty: 1
+        },
+        {
+          question: "🚗 A taxi charges ₹2 per mile. If the fare was ₹10, how many miles?",
+          answer: "5",
+          explanation: "2x = 10, so x = 10 ÷ 2 = 5 miles",
+          difficulty: 1
+        },
+        {
+          question: "📱 Phone plan: ₹20 base + ₹5 per GB. Bill was ₹35. How many GB used?",
+          answer: "3",
+          explanation: "35 = 20 + 5x, so 5x = 15, therefore x = 3 GB",
+          difficulty: 2
+        },
+        {
+          question: "🍕 Pizza costs ₹12 plus ₹2 per topping. Total was ₹18. How many toppings?",
+          answer: "3",
+          explanation: "18 = 12 + 2x, so 2x = 6, therefore x = 3 toppings",
+          difficulty: 2
+        },
+        {
+          question: "💰 You start with ₹50 and save ₹10 per week. After how many weeks will you have ₹100?",
+          answer: "5",
+          explanation: "100 = 50 + 10x, so 10x = 50, therefore x = 5 weeks",
+          difficulty: 3
+        },
+        {
+          question: "🏪 Lemonade costs ₹1 per cup. After paying ₹8 for supplies, you made ₹12 profit. How many cups sold?",
+          answer: "20",
+          explanation: "Profit = Revenue - Costs: 12 = 1x - 8, so x = 20 cups",
+          difficulty: 3
+        },
+        {
+          question: "🎬 Movie tickets: Adults ₹10, kids ₹6. Family of 4 spent ₹32 with equal adults and kids. How many adults?",
+          answer: "2",
+          explanation: "Let x = adults = kids. So: 10x + 6x = 32, giving 16x = 32, therefore x = 2 adults",
+          difficulty: 4
+        },
+        {
+          question: "💳 Gym A: ₹30/month + ₹3/class. Gym B: ₹50/month + ₹1/class. Same cost at how many classes?",
+          answer: "10",
+          explanation: "30 + 3x = 50 + 1x, so 2x = 20, therefore x = 10 classes",
+          difficulty: 4
+        }
+      ],
+      'basic-geometry': [
+        {
+          question: "🔲 A rectangle is 4 meters long and 3 meters wide. What's the area?",
+          answer: "12",
+          explanation: "Area = length × width = 4 × 3 = 12 square meters",
+          difficulty: 1
+        },
+        {
+          question: "⭕ A circle has a radius of 2 meters. What's the area? (Use π = 3)",
+          answer: "12",
+          explanation: "Area = π × radius² = 3 × 2² = 3 × 4 = 12 square meters",
+          difficulty: 1
+        },
+        {
+          question: "🏡 You want to fence a square garden that's 5 meters on each side. How much fencing do you need?",
+          answer: "20",
+          explanation: "Perimeter = 4 × side = 4 × 5 = 20 meters",
+          difficulty: 2
+        },
+        {
+          question: "📐 A triangle has a base of 6 meters and height of 4 meters. What's the area?",
+          answer: "12",
+          explanation: "Triangle area = ½ × base × height = ½ × 6 × 4 = 12 square meters",
+          difficulty: 2
+        },
+        {
+          question: "📦 A rectangular box is 10cm long and 6cm wide. What's the area of the bottom?",
+          answer: "60",
+          explanation: "Bottom area = length × width = 10 × 6 = 60 square centimeters",
+          difficulty: 3
+        },
+        {
+          question: "🎨 You're painting a circular table with radius 3 meters. What's the area? (Use π ≈ 3.14)",
+          answer: "28",
+          explanation: "Area = πr² = 3.14 × 3² = 3.14 × 9 = 28.26 ≈ 28 square meters",
+          difficulty: 3
+        },
+        {
+          question: "🏠 Your square room has an area of 25 square meters. What's the length of each wall?",
+          answer: "5",
+          explanation: "Since area = side², we have side² = 25, so side = √25 = 5 meters",
+          difficulty: 4
+        },
+        {
+          question: "🏊 A rectangular pool is 8 meters long and 5 meters wide. A circular spa with radius 2 meters is next to it. What's the total water area? (Use π ≈ 3.14)",
+          answer: "53",
+          explanation: "Pool area = 8 × 5 = 40. Spa area = π × 2² = 3.14 × 4 = 12.56. Total ≈ 40 + 13 = 53 square meters",
+          difficulty: 4
+        }
+      ]
+    }
+
+    return questionSets[topic] || questionSets.pythagoras
+  }
+
+  const handleTopicSelect = (topic) => {
+    setSelectedTopic(topic)
+    setSelectedLearningStyle(user?.learningProfile || 'visual')
+    setCurrentPhase('teaching')
+  }
+
+  const handleStartTest = () => {
+    const topicQuestions = generateQuestions(selectedTopic.id)
+    setQuestions(topicQuestions)
+    setAnswers(new Array(topicQuestions.length).fill(''))
+    setTestData([])
+    setCurrentPhase('testing')
+    setQuestionStartTime(Date.now())
+  }
+
+  const handleAnswerSubmit = (answer) => {
+    const timeSpent = Date.now() - questionStartTime
+    const isCorrect = answer.toString().toLowerCase() === questions[currentQuestion].answer.toLowerCase()
+
+    const questionData = {
+      questionNumber: currentQuestion + 1,
+      question: questions[currentQuestion].question,
+      userAnswer: answer,
+      correctAnswer: questions[currentQuestion].answer,
+      isCorrect,
+      timeSpent,
+      difficulty: questions[currentQuestion].difficulty
+    }
+
+    const newTestData = [...testData, questionData]
+    setTestData(newTestData)
+
+    const newAnswers = [...answers]
+    newAnswers[currentQuestion] = answer
+    setAnswers(newAnswers)
+
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1)
+      setQuestionStartTime(Date.now())
+    } else {
+      calculateLearningCurve(newTestData)
+    }
+  }
+
+  const calculateLearningCurve = async (data) => {
+    setLoading(true)
+
+    // Basic metrics
+    const correctAnswers = data.filter(q => q.isCorrect).length
+    const totalQuestions = data.length
+    const accuracy = (correctAnswers / totalQuestions) * 100
+    const averageTime = data.reduce((sum, q) => sum + q.timeSpent, 0) / data.length
+
+    // 🧠 MVP LEARNING INTELLIGENCE ANALYSIS
+
+    // 1. ACCURACY TREND ANALYSIS
+    const accuracyByQuestion = data.map((_, index) => {
+      const upToHere = data.slice(0, index + 1)
+      return (upToHere.filter(q => q.isCorrect).length / upToHere.length) * 100
+    })
+
+    const trendType = analyzeTrend(accuracyByQuestion)
+
+    // 2. ERROR PATTERN ANALYSIS
+    const errorPattern = analyzeErrorPattern(data)
+
+    // 3. SPEED-ACCURACY PROFILE
+    const speedAccuracyProfile = analyzeSpeedAccuracy(data, averageTime)
+
+    // 🎯 INTELLIGENT CLASSIFICATION
+    const { learningProfile, insights } = classifyLearner(trendType, errorPattern, speedAccuracyProfile, accuracy, averageTime)
+
+    // Calculate improvement for additional insight
+    const firstThirdAccuracy = data.slice(0, Math.ceil(totalQuestions/3)).filter(q => q.isCorrect).length / Math.ceil(totalQuestions/3) * 100
+    const lastThirdAccuracy = data.slice(-Math.ceil(totalQuestions/3)).filter(q => q.isCorrect).length / Math.ceil(totalQuestions/3) * 100
+    const improvement = lastThirdAccuracy - firstThirdAccuracy
+
+    // 🤝 GENERATE STUDY BUDDIES
+    const currentTopic = selectedTopic === 'basic-geometry' ? 'Math' :
+                        selectedTopic === 'percentages' ? 'Math' :
+                        selectedTopic === 'linear-equations' ? 'Math' :
+                        selectedTopic === 'pythagoras' ? 'Math' : 'Math'
+
+    const userSubjects = [currentTopic, 'General Studies']
+    const studyBuddies = findStudyBuddies(learningProfile.type, accuracy, userSubjects)
+
+    const learningCurveProfile = {
+      // Legacy fields for compatibility
+      speed: learningProfile.type,
+      type: learningProfile.title,
+      accuracy: accuracy,
+      averageTime: averageTime,
+      improvement: improvement,
+      testData: data,
+      // 🧠 NEW INTELLIGENT FIELDS
+      learningProfile: learningProfile,
+      insights: insights,
+      accuracyByQuestion: accuracyByQuestion,
+      // 🤝 SMART PAIRING
+      studyBuddies: studyBuddies,
+      userSubjects: userSubjects
+    }
+
+    try {
+      // Save learning curve data to user profile
+      await api.put('/users/profile', {
+        learningCurveProfile,
+        learningCurveTestData: data
+      })
+
+      // Save to localStorage for ProfileSection access
+      localStorage.setItem('userLearningProfile', JSON.stringify(learningCurveProfile.learningProfile))
+      localStorage.setItem('studyBuddies', JSON.stringify(learningCurveProfile.studyBuddies))
+
+      // Save learning history entry
+      const historyEntry = {
+        date: new Date().toLocaleDateString(),
+        accuracy: learningCurveProfile.accuracy,
+        averageTime: learningCurveProfile.testData.reduce((sum, q) => sum + q.timeSpent, 0) / learningCurveProfile.testData.length,
+        notes: `₹{learningCurveProfile.learningProfile.type} assessment completed`
+      }
+
+      const existingHistory = JSON.parse(localStorage.getItem('learningHistory') || '[]')
+      existingHistory.push(historyEntry)
+      localStorage.setItem('learningHistory', JSON.stringify(existingHistory))
+
+      updateUser({ learningCurveProfile })
+      setResult(learningCurveProfile)
+      setCurrentPhase('results')
+    } catch (error) {
+      console.error('Error saving learning curve data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleContinue = () => {
+    navigate('/dashboard')
+  }
+
+  if (loading) {
+    return (
+      <div className="learning-curve-container">
+        <div className="loading-spinner"></div>
+        <p>Analyzing your learning curve...</p>
+      </div>
+    )
+  }
+
+  // Topic Selection Phase
+  if (currentPhase === 'topic-selection') {
+    return (
+      <div className="learning-curve-container">
+        <div className="topic-selection-card">
+          <div className="test-header">
+            <h2>Calibre Assessment</h2>
+            <p>Choose a topic to discover how quickly you learn new concepts</p>
+          </div>
+
+          <div className="topics-grid">
+            {topics.map((topic) => (
+              <div
+                key={topic.id}
+                className="topic-card"
+                onClick={() => handleTopicSelect(topic)}
+              >
+                <div className="topic-icon">{topic.icon}</div>
+                <h3>{topic.title}</h3>
+                <p>{topic.description}</p>
+                <span className="difficulty-badge">{topic.difficulty}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Teaching Phase
+  if (currentPhase === 'teaching') {
+    const teachingContent = getTeachingContent(selectedTopic.id, selectedLearningStyle)
+
+    return (
+      <div className="learning-curve-container">
+        <div className="teaching-card">
+          <div className="teaching-header">
+            <h2>Learn: {selectedTopic.title}</h2>
+            <p>Current learning style: <strong>{selectedLearningStyle}</strong></p>
+          </div>
+
+          <div className="learning-style-switcher">
+            <h4>🎯 Choose Your Learning Style:</h4>
+            <div className="style-buttons">
+              <button
+                className={`style-btn ₹{selectedLearningStyle === 'visual' ? 'active' : ''}`}
+                onClick={() => setSelectedLearningStyle('visual')}
+              >
+                👁️ Visual
+                <span>Charts, diagrams, colors</span>
+              </button>
+              <button
+                className={`style-btn ₹{selectedLearningStyle === 'auditory' ? 'active' : ''}`}
+                onClick={() => setSelectedLearningStyle('auditory')}
+              >
+                🎧 Auditory
+                <span>Stories, explanations, sounds</span>
+              </button>
+              <button
+                className={`style-btn ₹{selectedLearningStyle === 'kinesthetic' ? 'active' : ''}`}
+                onClick={() => setSelectedLearningStyle('kinesthetic')}
+              >
+                🎮 Interactive
+                <span>Hands-on, drag & drop</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="teaching-content">
+            {teachingContent.type === 'audio' ? (
+              <AudioTeaching
+                content={teachingContent.content}
+                title={teachingContent.title}
+              />
+            ) : teachingContent.type === 'interactive' ? (
+              <KinestheticTeaching
+                content={teachingContent.content}
+                title={teachingContent.title}
+              />
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: teachingContent.content }} />
+            )}
+          </div>
+
+          <div className="teaching-navigation">
+            <button
+              onClick={() => setCurrentPhase('topic-selection')}
+              className="nav-button secondary"
+            >
+              Choose Different Topic
+            </button>
+            <button
+              onClick={handleStartTest}
+              className="nav-button primary"
+            >
+              Start Learning Assessment
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Testing Phase
+  if (currentPhase === 'testing') {
+    const progress = ((currentQuestion + 1) / questions.length) * 100
+
+    return (
+      <div className="learning-curve-container">
+        <div className="test-card">
+          <div className="test-header">
+            <h2>Calibre Test: {selectedTopic.title}</h2>
+            <p>Answer as quickly and accurately as possible</p>
+
+            <div className="progress-container">
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `₹{progress}%` }}
+                ></div>
+              </div>
+              <span className="progress-text">
+                Question {currentQuestion + 1} of {questions.length}
+              </span>
+            </div>
+          </div>
+
+          <div className="question-container">
+            <h3 className="question-text">
+              {questions[currentQuestion]?.question}
+            </h3>
+
+            <div className="answer-input">
+              <input
+                type="text"
+                placeholder="Enter your answer"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && e.target.value.trim()) {
+                    handleAnswerSubmit(e.target.value.trim())
+                    e.target.value = ''
+                  }
+                }}
+                autoFocus
+              />
+              <button
+                onClick={(e) => {
+                  const input = e.target.previousElementSibling
+                  if (input.value.trim()) {
+                    handleAnswerSubmit(input.value.trim())
+                    input.value = ''
+                  }
+                }}
+                className="submit-answer-btn"
+              >
+                Submit
+              </button>
+            </div>
+
+            <div className="test-info">
+              <p>💡 Tip: Answer as quickly as you can while being accurate</p>
+              <p>⏱️ Time is being measured for each question</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Results Phase
+  if (currentPhase === 'results' && result) {
+    const getSpeedColor = (speed) => {
+      switch (speed) {
+        case 'pattern-master': return '#10B981'
+        case 'precision-learner': return '#3B82F6'
+        case 'breakthrough-learner': return '#8B5CF6'
+        case 'natural-talent': return '#F59E0B'
+        case 'methodical-builder': return '#EF4444'
+        case 'balanced-learner': return '#6366F1'
+        // Legacy support
+        case 'Fast': return '#10B981'
+        case 'Average': return '#F59E0B'
+        case 'Slow': return '#EF4444'
+        default: return '#6B7280'
+      }
+    }
+
+    const getProfileIcon = (type) => {
+      switch (type) {
+        case 'pattern-master': return '🎯'
+        case 'precision-learner': return '🔍'
+        case 'breakthrough-learner': return '⚡'
+        case 'natural-talent': return '🌟'
+        case 'methodical-builder': return '🔧'
+        case 'balanced-learner': return '⚖️'
+        // Legacy support
+        case 'Fast': return '🚀'
+        case 'Average': return '📈'
+        case 'Slow': return '🎯'
+        default: return '🧠'
+      }
+    }
+
+    const totalTime = result.testData.reduce((sum, q) => sum + q.timeSpent, 0)
+    const correctCount = result.testData.filter(q => q.isCorrect).length
+    const wrongCount = result.testData.length - correctCount
+
+    return (
+      <div className="learning-curve-container">
+        <div className="result-card">
+          <div className="result-header">
+            <div className="result-icon" style={{ backgroundColor: getSpeedColor(result.learningProfile?.type || result.speed) }}>
+              {getProfileIcon(result.learningProfile?.type || result.speed)}
+            </div>
+            <h2>Your Learning Intelligence Profile</h2>
+            <h3 className="result-type">{result.learningProfile?.title || result.type}</h3>
+            <div className="learning-speed-badge" style={{ backgroundColor: getSpeedColor(result.learningProfile?.type || result.speed) }}>
+              {result.learningProfile?.title || result.type}
+            </div>
+          </div>
+
+          <div className="result-overview">
+            <div className="overview-grid">
+              <div className="overview-card correct">
+                <div className="overview-number">{correctCount}</div>
+                <div className="overview-label">Correct</div>
+              </div>
+              <div className="overview-card wrong">
+                <div className="overview-number">{wrongCount}</div>
+                <div className="overview-label">Wrong</div>
+              </div>
+              <div className="overview-card time">
+                <div className="overview-number">{Math.round(totalTime / 1000)}s</div>
+                <div className="overview-label">Total Time</div>
+              </div>
+              <div className="overview-card accuracy">
+                <div className="overview-number">{result.accuracy.toFixed(0)}%</div>
+                <div className="overview-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 🧠 LEARNING INTELLIGENCE INSIGHTS */}
+          {result.learningProfile && (
+            <div className="intelligence-insights-compact">
+              <div className="insights-header">
+                <span className="insights-title">AI Learning Analysis</span>
+                <div className="insights-summary">
+                  <span className="insight-item">
+                    📈 <strong>{result.insights?.trend || 'analyzing'}</strong>
+                    <span className="insight-explanation">
+                      {result.insights?.trend === 'linear' && 'steady improvement pattern'}
+                      {result.insights?.trend === 'exponential' && 'breakthrough learning style'}
+                      {result.insights?.trend === 'plateau' && 'quick start then leveled'}
+                      {result.insights?.trend === 'consistent' && 'strong from beginning'}
+                      {result.insights?.trend === 'irregular' && 'mixed performance pattern'}
+                    </span>
+                  </span>
+                  <span className="insight-item">
+                    🎯 <strong>{result.insights?.errors || 'analyzing'}</strong>
+                    <span className="insight-explanation">
+                      {result.insights?.errors === 'systematic' && 'struggles with complexity'}
+                      {result.insights?.errors === 'random' && 'careless mistakes pattern'}
+                      {result.insights?.errors === 'minimal-errors' && 'high accuracy maintained'}
+                    </span>
+                  </span>
+                  <span className="insight-item">
+                    ⚡ <strong>{result.insights?.speedAccuracy || 'analyzing'}</strong>
+                    <span className="insight-explanation">
+                      {result.insights?.speedAccuracy === 'speed-master' && 'fast & accurate responses'}
+                      {result.insights?.speedAccuracy === 'precision-focused' && 'thoughtful & precise approach'}
+                      {result.insights?.speedAccuracy === 'hasty' && 'quick but needs accuracy work'}
+                      {result.insights?.speedAccuracy === 'deliberate' && 'careful processing style'}
+                      {result.insights?.speedAccuracy === 'balanced' && 'good speed-accuracy balance'}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 📈 LEARNING CURVE VISUALIZATION */}
+          {result.accuracyByQuestion && result.accuracyByQuestion.length > 0 && (
+            <div className="learning-curve-viz">
+              <h4>📊 Your Learning Progress</h4>
+              <div className="curve-container">
+                <svg viewBox="0 0 400 180" className="curve-svg">
+                  <defs>
+                    <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#EF4444" />
+                      <stop offset="50%" stopColor="#F59E0B" />
+                      <stop offset="100%" stopColor="#10B981" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Grid lines */}
+                  {[0, 25, 50, 75, 100].map(y => (
+                    <line key={y} x1="40" y1={140 - y * 1} x2="360" y2={140 - y * 1}
+                      stroke="#E5E7EB" strokeWidth="1" opacity="0.5" />
+                  ))}
+
+                  {/* Y-axis labels */}
+                  {[0, 25, 50, 75, 100].map(y => (
+                    <text key={y} x="30" y={145 - y * 1} fontSize="10" fill="#6B7280" textAnchor="end">
+                      {y}%
+                    </text>
+                  ))}
+
+                  {/* Learning curve line */}
+                  {result.accuracyByQuestion.length > 1 && (
+                    <polyline
+                      points={result.accuracyByQuestion.map((accuracy, index) => {
+                        const x = 50 + (index * 280) / (result.accuracyByQuestion.length - 1)
+                        const y = 140 - (accuracy * 1)
+                        return `${x},${y}`
+                      }).join(' ')}
+                      fill="none"
+                      stroke="url(#curveGradient)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+
+                  {/* Data points */}
+                  {result.accuracyByQuestion.map((accuracy, index) => {
+                    const x = result.accuracyByQuestion.length > 1
+                      ? 50 + (index * 280) / (result.accuracyByQuestion.length - 1)
+                      : 200
+                    const y = 140 - (accuracy * 1)
+
+                    return (
+                      <g key={index}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="6"
+                          fill={accuracy >= 80 ? '#10B981' : accuracy >= 60 ? '#F59E0B' : '#EF4444'}
+                          stroke="#FFFFFF"
+                          strokeWidth="3"
+                        />
+                        <text
+                          x={x}
+                          y={y - 12}
+                          fontSize="10"
+                          fill="#374151"
+                          textAnchor="middle"
+                          fontWeight="600"
+                        >
+                          {accuracy.toFixed(0)}%
+                        </text>
+                        <text
+                          x={x}
+                          y={160}
+                          fontSize="9"
+                          fill="#6B7280"
+                          textAnchor="middle"
+                        >
+                          Q{index + 1}
+                        </text>
+                      </g>
+                    )
+                  })}
+
+                  {/* Chart title */}
+                  <text
+                    x="200"
+                    y="20"
+                    fontSize="12"
+                    fill="#374151"
+                    textAnchor="middle"
+                    fontWeight="600"
+                  >
+                    Learning Progress by Question
+                  </text>
+                </svg>
+              </div>
+            </div>
+          )}
+
+          <div className="result-stats-grid">
+            <div className="stat-card-new">
+              <div className="stat-header">
+                <span className="stat-title">Profile Type</span>
+              </div>
+              <div className="stat-value-new">{result.learningProfile?.title || result.type}</div>
+              <div className="stat-description">{result.learningProfile?.description || 'Your learning style'}</div>
+            </div>
+
+            <div className="stat-card-new">
+              <div className="stat-header">
+                <span className="stat-title">Average Time</span>
+              </div>
+              <div className="stat-value-new">{(result.averageTime / 1000).toFixed(1)}s</div>
+              <div className="stat-description">Per question response time</div>
+            </div>
+
+            <div className="stat-card-new">
+              <div className="stat-header">
+                <span className="stat-title">Improvement</span>
+              </div>
+              <div className="stat-value-new">{result.improvement > 0 ? '+' : ''}{result.improvement.toFixed(0)}%</div>
+              <div className="stat-description">From first third to last third</div>
+            </div>
+          </div>
+
+          {result.learningProfile?.strengths && (
+            <div className="strengths-section">
+              <h4>Your Learning Strengths</h4>
+              <div className="strengths-list">
+                {result.learningProfile.strengths.map((strength, index) => (
+                  <span key={index} className="strength-tag">{strength}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="result-actions">
+            <button
+              onClick={() => setShowDetailedResults(!showDetailedResults)}
+              className="details-button"
+            >
+              {showDetailedResults ? 'Hide' : 'Show'} Detailed Results
+            </button>
+            <button
+              onClick={handleContinue}
+              className="continue-button"
+            >
+              Continue to Dashboard
+            </button>
+          </div>
+
+          {showDetailedResults && (
+            <div className="detailed-results">
+              <h4>📊 Question-by-Question Analysis</h4>
+              <div className="question-results">
+                {result.testData.map((question, index) => (
+                  <div key={index} className={`question-result ₹{question.isCorrect ? 'correct' : 'wrong'}`}>
+                    <div className="question-header">
+                      <div className="question-number">Q{index + 1}</div>
+                      <div className="question-status">
+                        {question.isCorrect ? '✅' : '❌'}
+                      </div>
+                      <div className="question-time">{(question.timeSpent / 1000).toFixed(1)}s</div>
+                    </div>
+                    <div className="question-text">{question.question}</div>
+                    <div className="question-answers">
+                      <div className="answer-row">
+                        <span className="answer-label">Your answer:</span>
+                        <span className={`answer-value ₹{question.isCorrect ? 'correct' : 'wrong'}`}>
+                          {question.userAnswer}
+                        </span>
+                      </div>
+                      {!question.isCorrect && (
+                        <div className="answer-row">
+                          <span className="answer-label">Correct answer:</span>
+                          <span className="answer-value correct">{question.correctAnswer}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 🤝 SMART STUDY BUBBLE */}
+          {result.studyBuddies && result.studyBuddies.length > 0 && (
+            <div className="study-bubble-section">
+              <h4>Your Study Bubble</h4>
+              <p className="bubble-description">
+                Based on your learning profile <strong>({result.learningProfile?.title})</strong>,
+                we've paired you with complementary study partners:
+              </p>
+              <div className="study-bubble-grid">
+                {result.studyBuddies.map((buddy, index) => (
+                  <div key={buddy.id} className="study-buddy-card">
+                    <div className="buddy-avatar">{buddy.avatar}</div>
+                    <div className="buddy-info">
+                      <div className="buddy-name">{buddy.name}</div>
+                      <div className="buddy-profile">{buddy.learningProfile}</div>
+                      <div className="buddy-style">{buddy.preferredStyle} Learner</div>
+                      <div className="buddy-subjects">
+                        {buddy.subjects.map((subject, i) => (
+                          <span key={i} className="subject-tag">{subject}</span>
+                        ))}
+                      </div>
+                      <div className="compatibility-badge">
+                        {index === 0 ? '🎯 Similar Pace' :
+                         index === 1 ? '🔄 Complementary Style' :
+                         '📚 Shared Interests'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="bubble-actions">
+                <button className="join-bubble-btn">Join Study Bubble</button>
+                <button className="find-more-btn">Find More Partners</button>
+              </div>
+            </div>
+          )}
+
+          <div className="learning-tips">
+            <h4>Personalized Learning Recommendations</h4>
+            <div className="tips-grid">
+              {result.learningProfile?.recommendations?.map((recommendation, index) => (
+                <div key={index} className="tip-card intelligent">
+                  <div className="tip-icon">💡</div>
+                  <div className="tip-content">
+                    <div className="tip-title">Recommendation {index + 1}</div>
+                    <div className="tip-description">{recommendation}</div>
+                  </div>
+                </div>
+              )) || [
+                // Fallback to generic tips if no intelligent recommendations
+                <div key="1" className="tip-card">
+                  <div className="tip-icon">📚</div>
+                  <div className="tip-content">
+                    <div className="tip-title">Keep Learning</div>
+                    <div className="tip-description">Continue practicing to improve your skills</div>
+                  </div>
+                </div>
+              ]}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return null
+}
+
+// 🧠 MVP LEARNING INTELLIGENCE FUNCTIONS
+
+// 1. Analyze Accuracy Trend Pattern
+const analyzeTrend = (accuracyByQuestion) => {
+  if (accuracyByQuestion.length < 4) return 'insufficient-data'
+
+  const first = accuracyByQuestion[0]
+  const mid = accuracyByQuestion[Math.floor(accuracyByQuestion.length / 2)]
+  const last = accuracyByQuestion[accuracyByQuestion.length - 1]
+
+  // Linear: steady improvement
+  if (last > first && (last - first) / accuracyByQuestion.length > 5) {
+    return 'linear'
+  }
+
+  // Exponential: slow start, rapid improvement
+  if (first < 50 && last > 75 && last - mid > mid - first) {
+    return 'exponential'
+  }
+
+  // Plateau: quick start then levels off
+  if (first > 60 && Math.abs(last - mid) < 10) {
+    return 'plateau'
+  }
+
+  // Consistent: good from the start
+  if (first > 70 && last > 70) {
+    return 'consistent'
+  }
+
+  return 'irregular'
+}
+
+// 2. Analyze Error Patterns
+const analyzeErrorPattern = (data) => {
+  const errors = data.filter(q => !q.isCorrect)
+  if (errors.length < 2) return 'minimal-errors'
+
+  // Check if errors cluster in difficult questions (later in test)
+  const errorPositions = errors.map(error => data.indexOf(error))
+  const avgErrorPosition = errorPositions.reduce((sum, pos) => sum + pos, 0) / errorPositions.length
+
+  // Systematic errors: cluster in difficult questions
+  if (avgErrorPosition > data.length * 0.6) {
+    return 'systematic' // Struggles with complexity
+  }
+
+  // Random errors: scattered throughout
+  return 'random' // Careless mistakes
+}
+
+// 3. Analyze Speed vs Accuracy Balance
+const analyzeSpeedAccuracy = (data, averageTime) => {
+  const correctData = data.filter(q => q.isCorrect)
+  const incorrectData = data.filter(q => !q.isCorrect)
+
+  const correctAvgTime = correctData.length > 0 ?
+    correctData.reduce((sum, q) => sum + q.timeSpent, 0) / correctData.length : averageTime
+
+  const incorrectAvgTime = incorrectData.length > 0 ?
+    incorrectData.reduce((sum, q) => sum + q.timeSpent, 0) / incorrectData.length : averageTime
+
+  const accuracy = (correctData.length / data.length) * 100
+
+  // Fast and accurate
+  if (averageTime < 15000 && accuracy > 75) {
+    return 'speed-master'
+  }
+
+  // Slow but precise
+  if (averageTime > 25000 && accuracy > 80) {
+    return 'precision-focused'
+  }
+
+  // Quick but careless
+  if (averageTime < 12000 && accuracy < 60) {
+    return 'hasty'
+  }
+
+  // Takes time, good results
+  if (averageTime > 20000 && accuracy > 65) {
+    return 'deliberate'
+  }
+
+  return 'balanced'
+}
+
+// 4. Intelligent Classification System
+const classifyLearner = (trendType, errorPattern, speedAccuracyProfile, accuracy, averageTime) => {
+  let profile = {
+    type: '',
+    title: '',
+    description: '',
+    strengths: [],
+    recommendations: []
+  }
+
+  let insights = {
+    trend: trendType,
+    errors: errorPattern,
+    speedAccuracy: speedAccuracyProfile
+  }
+
+  // 🎯 INTELLIGENT CLASSIFICATION LOGIC
+
+  if (speedAccuracyProfile === 'speed-master') {
+    profile = {
+      type: 'pattern-master',
+      title: 'Pattern Master',
+      description: 'You quickly recognize underlying patterns and maintain high accuracy',
+      strengths: ['Fast pattern recognition', 'Efficient processing', 'Consistent accuracy'],
+      recommendations: [
+        'Try advanced multi-concept problems',
+        'Explore teaching opportunities to reinforce learning',
+        'Challenge yourself with time-pressured scenarios'
+      ]
+    }
+  } else if (speedAccuracyProfile === 'precision-focused') {
+    profile = {
+      type: 'precision-learner',
+      title: 'Precision Learner',
+      description: 'You prioritize accuracy over speed and deliver consistently high-quality results',
+      strengths: ['High accuracy', 'Thorough thinking', 'Quality focus'],
+      recommendations: [
+        'Your careful approach is a strength - maintain it',
+        'Try timed practice to build confidence in faster responses',
+        'Practice with easier problems to build speed gradually'
+      ]
+    }
+  } else if (trendType === 'exponential') {
+    profile = {
+      type: 'breakthrough-learner',
+      title: 'Breakthrough Learner',
+      description: 'You show remarkable improvement as concepts click into place',
+      strengths: ['Strong learning acceleration', 'Adaptability', 'Growth mindset'],
+      recommendations: [
+        'Take breaks between learning sessions for reflection',
+        'Review fundamentals before tackling new concepts',
+        'Track your progress to see improvement patterns'
+      ]
+    }
+  } else if (trendType === 'consistent') {
+    profile = {
+      type: 'natural-talent',
+      title: 'Natural Talent',
+      description: 'You demonstrate strong foundational understanding from the start',
+      strengths: ['Strong foundation', 'Consistent performance', 'Natural aptitude'],
+      recommendations: [
+        'Seek advanced challenges to stay engaged',
+        'Help others to reinforce your understanding',
+        'Explore related topics to broaden knowledge'
+      ]
+    }
+  } else if (errorPattern === 'systematic' && speedAccuracyProfile === 'deliberate') {
+    profile = {
+      type: 'methodical-builder',
+      title: 'Methodical Builder',
+      description: 'You build understanding systematically, with challenges mainly in complex areas',
+      strengths: ['Systematic approach', 'Logical thinking', 'Foundation building'],
+      recommendations: [
+        'Break complex problems into smaller steps',
+        'Practice intermediate difficulty problems',
+        'Build confidence with successful completions'
+      ]
+    }
+  } else {
+    // Default balanced learner
+    profile = {
+      type: 'balanced-learner',
+      title: 'Balanced Learner',
+      description: 'You show a well-rounded approach to learning with steady progress',
+      strengths: ['Balanced approach', 'Steady improvement', 'Adaptable'],
+      recommendations: [
+        'Continue with consistent practice',
+        'Focus on areas that challenge you most',
+        'Set regular learning goals to maintain progress'
+      ]
+    }
+  }
+
+  return { learningProfile: profile, insights }
+}
+
+// 🤝 SMART STUDENT PAIRING SYSTEM
+
+// Mock student database for hackathon demo
+const mockStudents = [
+  {
+    id: 1,
+    name: "Alex Chen",
+    avatar: "👨‍💻",
+    learningProfile: "Pattern Master",
+    pace: "fast",
+    subjects: ["Math", "Physics"],
+    accuracy: 85,
+    preferredStyle: "Visual"
+  },
+  {
+    id: 2,
+    name: "Priya Sharma",
+    avatar: "👩‍🔬",
+    learningProfile: "Precision Learner",
+    pace: "average",
+    subjects: ["Chemistry", "Biology"],
+    accuracy: 92,
+    preferredStyle: "Auditory"
+  },
+  {
+    id: 3,
+    name: "Marcus Johnson",
+    avatar: "👨‍🎓",
+    learningProfile: "Breakthrough Learner",
+    pace: "average",
+    subjects: ["Math", "Computer Science"],
+    accuracy: 78,
+    preferredStyle: "Kinesthetic"
+  },
+  {
+    id: 4,
+    name: "Sofia Rodriguez",
+    avatar: "👩‍🎨",
+    learningProfile: "Natural Talent",
+    pace: "fast",
+    subjects: ["Art", "Math"],
+    accuracy: 88,
+    preferredStyle: "Visual"
+  },
+  {
+    id: 5,
+    name: "David Kim",
+    avatar: "👨‍🔬",
+    learningProfile: "Methodical Builder",
+    pace: "deliberate",
+    subjects: ["Physics", "Engineering"],
+    accuracy: 90,
+    preferredStyle: "Auditory"
+  },
+  {
+    id: 6,
+    name: "Emma Wilson",
+    avatar: "👩‍💼",
+    learningProfile: "Balanced Learner",
+    pace: "average",
+    subjects: ["Business", "Math"],
+    accuracy: 82,
+    preferredStyle: "Visual"
+  }
+]
+
+// Smart pairing algorithm
+const findStudyBuddies = (userProfile, userAccuracy, userSubjects) => {
+  const userPace = userAccuracy >= 80 ? 'fast' : userAccuracy >= 65 ? 'average' : 'deliberate'
+
+  // Find students with similar pace
+  const similarPace = mockStudents.filter(student =>
+    student.pace === userPace || Math.abs(student.accuracy - userAccuracy) <= 15
+  )
+
+  // Find students with complementary learning styles
+  const complementaryStyles = mockStudents.filter(student =>
+    student.preferredStyle !== userProfile || student.learningProfile !== userProfile
+  )
+
+  // Find students with overlapping subjects
+  const sharedInterests = mockStudents.filter(student =>
+    student.subjects.some(subject => userSubjects?.includes(subject))
+  )
+
+  // Create study bubble (2-3 students)
+  const studyBubble = []
+
+  // Add one similar pace student
+  if (similarPace.length > 0) {
+    studyBubble.push(similarPace[0])
+  }
+
+  // Add one complementary style student
+  const complementary = complementaryStyles.find(s => !studyBubble.includes(s))
+  if (complementary) {
+    studyBubble.push(complementary)
+  }
+
+  // Add one with shared interests if space
+  if (studyBubble.length < 3) {
+    const sharedStudent = sharedInterests.find(s => !studyBubble.includes(s))
+    if (sharedStudent) {
+      studyBubble.push(sharedStudent)
+    }
+  }
+
+  return studyBubble.slice(0, 3) // Max 3 students in bubble
+}
+
+export default LearningCurveTest
