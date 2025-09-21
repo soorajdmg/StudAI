@@ -1,0 +1,28 @@
+services:
+  # Backend API
+  - type: web
+    name: studai-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false # You'll set this manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false # You'll set this manually in Render dashboard
+
+  # Frontend Static Site
+  - type: web
+    name: studai-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://studai-backend.onrender.com/api

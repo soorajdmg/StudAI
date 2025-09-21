@@ -10,24 +10,21 @@ const StressRelief = () => {
   const tabs = [
     {
       id: 'pomodoro',
-      name: 'Focus',
-      subtitle: 'Timer',
-      cardClass: 'focus-card',
-      icon: '?'
+      name: 'Focus Timer',
+      icon: '🕐',
+      description: 'Pomodoro sessions'
     },
     {
       id: 'breathing',
-      name: 'Wellness',
-      subtitle: 'Exercises',
-      cardClass: 'breathing-card',
-      icon: 'circular'
+      name: 'Breathing',
+      icon: '🧘‍♀️',
+      description: 'Relaxation exercises'
     },
     {
       id: 'chatbot',
-      name: 'AI Study',
-      subtitle: 'Coach',
-      cardClass: 'coach-card',
-      icon: 'dots'
+      name: 'AI Coach',
+      icon: '🤖',
+      description: 'Study guidance'
     }
   ]
 
@@ -47,47 +44,17 @@ const StressRelief = () => {
   return (
     <div className="stress-relief-container">
 
-      <div className="tab-navigation">
+      <div className="simple-tab-navigation">
         {tabs.map(tab => (
           <button
             key={tab.id}
-            className={`tab-button ${tab.cardClass} ${activeTab === tab.id ? 'active' : ''}`}
+            className={`simple-tab-button ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            {/* Background decorative circles */}
-            <div className="tab-card-bg-decoration">
-              <svg viewBox="0 0 96 96" className="tab-concentric-circles">
-                <circle cx="48" cy="48" r="44" fill="none" stroke="currentColor" strokeWidth="3" />
-                <circle cx="48" cy="48" r="36" fill="none" stroke="currentColor" strokeWidth="3" />
-                <circle cx="48" cy="48" r="28" fill="none" stroke="currentColor" strokeWidth="3" />
-                <circle cx="48" cy="48" r="20" fill="none" stroke="currentColor" strokeWidth="3" />
-                <circle cx="48" cy="48" r="12" fill="none" stroke="currentColor" strokeWidth="3" />
-              </svg>
-            </div>
-
-            {/* Icon with decorative elements */}
-            <div className="tab-icon-container">
-              <div className="tab-card-icon">
-                <div className="tab-icon-inner">
-                  {tab.icon === '?' && <span style={{fontSize: '1.125rem', fontWeight: 700}}>?</span>}
-                  {tab.icon === 'circular' && <div style={{width: '1.5rem', height: '1.5rem', background: 'currentColor', borderRadius: '50%'}}></div>}
-                  {tab.icon === 'dots' && (
-                    <div style={{display: 'flex', gap: '0.25rem', alignItems: 'center', justifyContent: 'center'}}>
-                      <div style={{width: '0.5rem', height: '0.5rem', background: 'currentColor', borderRadius: '50%'}}></div>
-                      <div style={{width: '0.5rem', height: '0.5rem', background: 'currentColor', borderRadius: '50%'}}></div>
-                    </div>
-                  )}
-                </div>
-                {/* Decorative X marks */}
-                <span className="tab-x-mark tab-x-1">×</span>
-                <span className="tab-x-mark tab-x-2">×</span>
-                <span className="tab-x-mark tab-x-3">×</span>
-              </div>
-            </div>
-
-            <div className="tab-card-content">
-              <h3 className="tab-name">{tab.name}</h3>
-              <h4 className="tab-subtitle">{tab.subtitle}</h4>
+            <div className="tab-icon">{tab.icon}</div>
+            <div className="tab-info">
+              <div className="tab-name">{tab.name}</div>
+              <div className="tab-description">{tab.description}</div>
             </div>
           </button>
         ))}

@@ -1307,3 +1307,85 @@ defs {
     margin-bottom: 1rem;
   }
 }
+
+/* Simple Tab Navigation Styles */
+.simple-tab-navigation {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.simple-tab-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Quicksand", sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-width: 160px;
+}
+
+.simple-tab-button:hover {
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.simple-tab-button.active {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #f3f4f6 0%, #f9fafb 100%);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+}
+
+.simple-tab-button .tab-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.simple-tab-button .tab-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.simple-tab-button .tab-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.simple-tab-button .tab-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.simple-tab-button.active .tab-name {
+  color: #8b5cf6;
+}
+
+.simple-tab-button.active .tab-description {
+  color: #7c3aed;
+}
+
+@media (max-width: 768px) {
+  .simple-tab-navigation {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .simple-tab-button {
+    width: 100%;
+    max-width: 300px;
+    justify-content: flex-start;
+  }
+}
