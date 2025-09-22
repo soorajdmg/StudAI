@@ -1,4 +1,4 @@
-# StudAI - AI-Powered Personalized Study & Stress Relief Tool
+# StudAI - Revolutionizing Learning
 
 StudAI is a full-stack web application that helps students learn based on their unique learning style and reduces academic stress through personalized tools and techniques.
 
