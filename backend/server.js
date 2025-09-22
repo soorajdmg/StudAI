@@ -14,6 +14,7 @@ const corsOptions = {
     'http://localhost:5173',
     'http://localhost:3000',
     'https://studai-frontend.onrender.com',
+    'https://studai-ewc9.onrender.com',
     /\.onrender\.com$/,
     /\.vercel\.app$/,
     /\.netlify\.app$/
