@@ -31,9 +31,19 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // MongoDB connection
+console.log('Attempting to connect to MongoDB...');
+console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/studai')
-.then(() => console.log('MongoDB connected successfully'))
-.catch((error) => console.log('MongoDB connection error:', error));
+.then(() => {
+  console.log('MongoDB connected successfully');
+  console.log('Database ready');
+})
+.catch((error) => {
+  console.error('MongoDB connection error:', error);
+  console.error('Full error details:', error.message);
+});
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -84,4 +94,10 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`CORS Origins configured for production deployment`);
+  console.log('Available routes:');
+  console.log('- GET  / (health check)');
+  console.log('- GET  /api/health');
+  console.log('- POST /api/auth/register');
+  console.log('- POST /api/auth/login');
+  console.log('- GET  /api/auth/me');
 });
