@@ -13,15 +13,30 @@ const generateToken = (userId) => {
 // Register
 router.post('/register', async (req, res) => {
   try {
+    console.log('Registration attempt:', { email: req.body.email, hasPassword: !!req.body.password });
+
     const { name, email, password } = req.body;
 
+    // Validate required fields
+    if (!name || !email || !password) {
+      console.log('Missing required fields:', { name: !!name, email: !!email, password: !!password });
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
     // Check if user exists
+    console.log('Checking for existing user with email:', email);
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('User already exists');
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // Create new user
+    console.log('Creating new user...');
     const user = new User({
       name,
       email,
@@ -29,8 +44,10 @@ router.post('/register', async (req, res) => {
     });
 
     await user.save();
+    console.log('User saved successfully');
 
     const token = generateToken(user._id);
+    console.log('Token generated successfully');
 
     res.status(201).json({
       message: 'User created successfully',
@@ -43,6 +60,8 @@ router.post('/register', async (req, res) => {
       },
     });
   } catch (error) {
+    console.error('Registration error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
