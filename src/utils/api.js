@@ -8,7 +8,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
   },
-  timeout: 30000, // 30 second timeout
+  timeout: 5000, // 5 second timeout for better UX
   withCredentials: false
 })
 

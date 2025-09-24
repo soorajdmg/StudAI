@@ -243,7 +243,7 @@ const Chatbot = () => {
           ))}
         </div>
 
-        <div className="chat-input">
+        <div className="chatbot-input-container">
           <textarea
             ref={textareaRef}
             value={inputMessage}

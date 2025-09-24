@@ -596,19 +596,19 @@ const VisualProfile = ({ testResults, sessionData, userPreferences }) => {
 
   return (
     <div className="visual-profile">
-      <div className="profile-header">
+      <div className="visual-profile-header">
         <h1>🎯 Your Learning Caliber Profile</h1>
         <p>Comprehensive analysis based on behavioral patterns and performance data</p>
       </div>
 
-      <div className="profile-tabs">
+      <div className="visual-profile-tabs">
         {tabs.map(tab => (
           <button
             key={tab.id}
-            className={`profile-tab ${activeTab === tab.id ? 'active' : ''}`}
+            className={`visual-profile-tab ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            <span className="tab-icon">{tab.icon}</span>
+            <span className="visual-tab-icon">{tab.icon}</span>
             {tab.name}
           </button>
         ))}

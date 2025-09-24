@@ -25,7 +25,10 @@ const StudAILanding = () => {
         <nav className="header-nav">
           <a href="#" className="nav-link nav-link-active">Home</a>
           <Link to="/dashboard" className="nav-link">Dashboard</Link>
-          <Link to="/test" className="nav-link">Take Test</Link>
+          <a href="#features" className="nav-link" onClick={(e) => {
+            e.preventDefault();
+            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+          }}>About</a>
           <Link to="/profile" className="nav-link">Profile</Link>
         </nav>
 
@@ -148,9 +151,9 @@ const StudAILanding = () => {
           </div>
 
           {/* Feature Cards */}
-          <div className="feature-cards">
+          <div className="landing-feature-cards">
             {/* Calibre Assessment Card */}
-            <div className="feature-card quiz-card">
+            <div className="landing-feature-card quiz-card">
               {/* Background decorative circles */}
               <div className="card-bg-decoration">
                 <svg viewBox="0 0 96 96" className="concentric-circles">
@@ -185,7 +188,7 @@ const StudAILanding = () => {
             </div>
 
             {/* Smart Study Pairing Card */}
-            <div className="feature-card activities-card">
+            <div className="landing-feature-card activities-card">
               {/* Background decorative starburst */}
               <div className="starburst-decoration">
                 <div className="starburst">
@@ -232,7 +235,7 @@ const StudAILanding = () => {
             </div>
 
             {/* Mental Health & Wellness Card */}
-            <div className="feature-card games-card">
+            <div className="landing-feature-card games-card">
               {/* Background dots pattern */}
               <div className="dots-pattern">
                 {Array.from({ length: 32 }).map((_, i) => (

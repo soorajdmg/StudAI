@@ -32,8 +32,8 @@
   font-weight: 500;
 }
 
-/* Profile Header */
-.profile-header {
+/* Visual Profile Header */
+.visual-profile-header {
   text-align: center;
   margin-bottom: 2rem;
   background: white;
@@ -42,7 +42,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.profile-header h1 {
+.visual-profile-header h1 {
   color: #2d3748;
   font-size: 2.5rem;
   font-weight: 700;
@@ -53,13 +53,13 @@
   background-clip: text;
 }
 
-.profile-header p {
+.visual-profile-header p {
   color: #718096;
   font-size: 1.2rem;
 }
 
-/* Profile Tabs */
-.profile-tabs {
+/* Visual Profile Tabs */
+.visual-profile-tabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
@@ -69,7 +69,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.profile-tab {
+.visual-profile-tab {
   flex: 1;
   padding: 1rem 1.5rem;
   border: none;
@@ -85,16 +85,16 @@
   gap: 0.5rem;
 }
 
-.profile-tab:hover {
+.visual-profile-tab:hover {
   background: #f7fafc;
 }
 
-.profile-tab.active {
+.visual-profile-tab.active {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
 }
 
-.tab-icon {
+.visual-tab-icon {
   font-size: 1.2rem;
 }
 
@@ -678,7 +678,7 @@
     font-size: 2rem;
   }
 
-  .profile-tabs {
+  .visual-profile-tabs {
     flex-direction: column;
   }
 

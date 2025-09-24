@@ -40,7 +40,7 @@ const AudioTeaching = ({ content, title }) => {
       const paragraphs = Array.from(tempDiv.querySelectorAll('p'))
         .map(p => p.textContent.trim())
         .filter(text => text.length > 0 && text.includes('🔊'))
-        .map(text => text.replace(/🔊/g, '').replace(/"/g, '').trim())
+        .map(text => text.replace(/🔊/g, '').replace(/['"]/g, '').trim())
         .join('. ')
 
       const utterance = new SpeechSynthesisUtterance(paragraphs)
@@ -151,8 +151,8 @@ const InteractiveGeometryCalculator = () => {
             <div
               className="rectangle-shape"
               style={{
-                width: `₹{dimensions.width * 20}px`,
-                height: `₹{dimensions.height * 20}px`
+                width: `${dimensions.width * 20}px`,
+                height: `${dimensions.height * 20}px`
               }}
             >
               <span className="shape-label">Rectangle</span>
@@ -170,8 +170,8 @@ const InteractiveGeometryCalculator = () => {
             <div
               className="circle-shape"
               style={{
-                width: `₹{dimensions.radius * 40}px`,
-                height: `₹{dimensions.radius * 40}px`
+                width: `${dimensions.radius * 40}px`,
+                height: `${dimensions.radius * 40}px`
               }}
             >
               <span className="shape-label">Circle</span>
@@ -188,19 +188,19 @@ const InteractiveGeometryCalculator = () => {
           <div className="shape-display">
             <div className="triangle-container">
               <svg
-                width={`₹{Math.max(dimensions.base * 20, 120)}`}
-                height={`₹{Math.max(dimensions.triangleHeight * 20, 100)}`}
+                width={`${Math.max(dimensions.base * 20, 120)}`}
+                height={`${Math.max(dimensions.triangleHeight * 20, 100)}`}
                 className="triangle-shape"
               >
                 <polygon
-                  points={`₹{dimensions.base * 10},20 20,₹{Math.max(dimensions.triangleHeight * 20, 100) - 20} ₹{dimensions.base * 20 - 20},₹{Math.max(dimensions.triangleHeight * 20, 100) - 20}`}
+                  points={`${dimensions.base * 10},20 20,${Math.max(dimensions.triangleHeight * 20, 100) - 20} ${dimensions.base * 20 - 20},${Math.max(dimensions.triangleHeight * 20, 100) - 20}`}
                   fill="#10b981"
                   stroke="#059669"
                   strokeWidth="3"
                 />
                 <text
-                  x={`₹{dimensions.base * 10}`}
-                  y={`₹{Math.max(dimensions.triangleHeight * 20, 100) * 0.6}`}
+                  x={`${dimensions.base * 10}`}
+                  y={`${Math.max(dimensions.triangleHeight * 20, 100) * 0.6}`}
                   textAnchor="middle"
                   className="shape-label"
                   fill="white"
@@ -301,19 +301,19 @@ const InteractiveGeometryCalculator = () => {
 
       <div className="shape-selector">
         <button
-          className={`shape-btn ₹{selectedShape === 'rectangle' ? 'active' : ''}`}
+          className={`shape-btn ${selectedShape === 'rectangle' ? 'active' : ''}`}
           onClick={() => setSelectedShape('rectangle')}
         >
           📐 Rectangle
         </button>
         <button
-          className={`shape-btn ₹{selectedShape === 'circle' ? 'active' : ''}`}
+          className={`shape-btn ${selectedShape === 'circle' ? 'active' : ''}`}
           onClick={() => setSelectedShape('circle')}
         >
           ⭕ Circle
         </button>
         <button
-          className={`shape-btn ₹{selectedShape === 'triangle' ? 'active' : ''}`}
+          className={`shape-btn ${selectedShape === 'triangle' ? 'active' : ''}`}
           onClick={() => setSelectedShape('triangle')}
         >
           🔺 Triangle
@@ -429,7 +429,7 @@ const InteractiveLinearEquationBuilder = () => {
           {tiles.map(tile => (
             <div
               key={tile.id}
-              className={`tile draggable ₹{equationSlots.rate === tile.id || equationSlots.variable === tile.id || equationSlots.cost === tile.id ? 'used' : ''}`}
+              className={`tile draggable ${equationSlots.rate === tile.id || equationSlots.variable === tile.id || equationSlots.cost === tile.id ? 'used' : ''}`}
               draggable={!(Object.values(equationSlots).includes(tile.id))}
               onDragStart={(e) => handleDragStart(e, tile.id)}
               style={{
@@ -447,7 +447,7 @@ const InteractiveLinearEquationBuilder = () => {
           <div className="equation-slot">Profit = </div>
 
           <div
-            className={`equation-slot drop-zone ₹{dragOverSlot === 'rate' ? 'drag-over' : ''}`}
+            className={`equation-slot drop-zone ${dragOverSlot === 'rate' ? 'drag-over' : ''}`}
             onDragOver={(e) => handleDragOver(e, 'rate')}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -460,7 +460,7 @@ const InteractiveLinearEquationBuilder = () => {
           <div className="equation-slot">×</div>
 
           <div
-            className={`equation-slot drop-zone ₹{dragOverSlot === 'variable' ? 'drag-over' : ''}`}
+            className={`equation-slot drop-zone ${dragOverSlot === 'variable' ? 'drag-over' : ''}`}
             onDragOver={(e) => handleDragOver(e, 'variable')}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -473,7 +473,7 @@ const InteractiveLinearEquationBuilder = () => {
           <div className="equation-slot">-</div>
 
           <div
-            className={`equation-slot drop-zone ₹{dragOverSlot === 'cost' ? 'drag-over' : ''}`}
+            className={`equation-slot drop-zone ${dragOverSlot === 'cost' ? 'drag-over' : ''}`}
             onDragOver={(e) => handleDragOver(e, 'cost')}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -504,10 +504,10 @@ const InteractiveLinearEquationBuilder = () => {
           /> cups:
         </p>
         <div className="result-display">
-          <p><strong>Profit = ₹{calculateProfit()}</strong></p>
+          <p><strong>Profit = ${calculateProfit()}</strong></p>
           {isEquationComplete() && (
             <p className="calculation-work">
-              Calculation: ₹1.50 × {cupsSold} - ₹10 = ₹{(1.50 * cupsSold).toFixed(2)} - ₹10 = ₹{calculateProfit()}
+              Calculation: $1.50 × {cupsSold} - $10 = ${(1.50 * cupsSold).toFixed(2)} - $10 = ${calculateProfit()}
             </p>
           )}
         </div>
@@ -574,13 +574,13 @@ const InteractivePercentageCalculator = () => {
         <div className="result-display">
           <div className="win-rate">Win Rate: <span className="percentage">{winRate}%</span></div>
           <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `₹{winRate}%` }}></div>
+            <div className="progress-fill" style={{ width: `${winRate}%` }}></div>
           </div>
         </div>
       </div>
-      <p className="formula">Formula: (Games Won ÷ Total Games) × 100 = Win Rate %</p>
+      <p className="formula">Formula: (Games Won / Total Games) × 100 = Win Rate %</p>
       <div className="live-calculation">
-        <p><strong>Live Calculation:</strong> ({gamesWon} ÷ {totalGames}) × 100 = {winRate}%</p>
+        <p><strong>Live Calculation:</strong> ({gamesWon} / {totalGames}) × 100 = {winRate}%</p>
       </div>
     </div>
   )
@@ -614,7 +614,7 @@ const KinestheticTeaching = ({ content, title }) => {
 
       // Check if triangle is complete
       if (Object.keys(newDroppedItems).length === 3 &&
-        newDroppedItems.bottom && newDroppedItems.right && newDroppedItems.diagonal) {
+          newDroppedItems.bottom && newDroppedItems.right && newDroppedItems.diagonal) {
         setTriangleBuilt(true)
         setTimeout(() => setShowCalculation(true), 1000)
       }
@@ -629,14 +629,14 @@ const KinestheticTeaching = ({ content, title }) => {
     const values = Object.values(droppedItems).map(getSideLength).sort((a, b) => a - b)
     if (values.length === 3) {
       const [a, b, c] = values
-      return Math.abs(a * a + b * b - c * c) < 0.01
+      return Math.abs(a*a + b*b - c*c) < 0.01
     }
     return false
   }
 
   const getTriangleComplete = () => {
     return Object.keys(droppedItems).length === 3 &&
-      droppedItems.bottom && droppedItems.right && droppedItems.diagonal
+           droppedItems.bottom && droppedItems.right && droppedItems.diagonal
   }
 
   const getTriangleVisualization = () => {
@@ -675,7 +675,7 @@ const KinestheticTeaching = ({ content, title }) => {
             </text>
 
             {/* Right angle indicator */}
-            <path d="M 185 150 L 185 135 L 200 135" stroke="#666" strokeWidth="2" fill="none" />
+            <path d="M 185 150 L 185 135 L 200 135" stroke="#666" strokeWidth="2" fill="none"/>
           </svg>
         </div>
 
@@ -691,17 +691,17 @@ const KinestheticTeaching = ({ content, title }) => {
 
               <div className="calculation-work">
                 <p><strong>Calculation:</strong></p>
-                <p>{baseMeasurement}² + {heightMeasurement}² = {(baseMeasurement * baseMeasurement).toFixed(2)} + {(heightMeasurement * heightMeasurement).toFixed(2)} = {(baseMeasurement * baseMeasurement + heightMeasurement * heightMeasurement).toFixed(2)}</p>
-                <p>{hypotenuseMeasurement}² = {(hypotenuseMeasurement * hypotenuseMeasurement).toFixed(2)}</p>
+                <p>{baseMeasurement}² + {heightMeasurement}² = {(baseMeasurement*baseMeasurement).toFixed(2)} + {(heightMeasurement*heightMeasurement).toFixed(2)} = {(baseMeasurement*baseMeasurement + heightMeasurement*heightMeasurement).toFixed(2)}</p>
+                <p>{hypotenuseMeasurement}² = {(hypotenuseMeasurement*hypotenuseMeasurement).toFixed(2)}</p>
 
                 {isValidTriangle ? (
                   <div className="success-message">
-                    <p>✅ <strong>Perfect!</strong> {(baseMeasurement * baseMeasurement + heightMeasurement * heightMeasurement).toFixed(2)} = {(hypotenuseMeasurement * hypotenuseMeasurement).toFixed(2)}</p>
+                    <p>✅ <strong>Perfect!</strong> {(baseMeasurement*baseMeasurement + heightMeasurement*heightMeasurement).toFixed(2)} = {(hypotenuseMeasurement*hypotenuseMeasurement).toFixed(2)}</p>
                     <p>This proves it's a right triangle! The Pythagorean theorem works!</p>
                   </div>
                 ) : (
                   <div className="error-message">
-                    <p>❌ <strong>Hmm...</strong> {(baseMeasurement * baseMeasurement + heightMeasurement * heightMeasurement).toFixed(2)} ≠ {(hypotenuseMeasurement * hypotenuseMeasurement).toFixed(2)}</p>
+                    <p>❌ <strong>Hmm...</strong> {(baseMeasurement*baseMeasurement + heightMeasurement*heightMeasurement).toFixed(2)} ≠ {(hypotenuseMeasurement*hypotenuseMeasurement).toFixed(2)}</p>
                     <p>This doesn't form a perfect right triangle. Try different measurements!</p>
                   </div>
                 )}
@@ -835,10 +835,10 @@ const KinestheticTeaching = ({ content, title }) => {
                 >
                   <defs>
                     <pattern id="dots" patternUnits="userSpaceOnUse" width="15" height="15">
-                      <circle cx="7.5" cy="7.5" r="1" fill="#e5e7eb" />
+                      <circle cx="7.5" cy="7.5" r="1" fill="#e5e7eb"/>
                     </pattern>
                   </defs>
-                  <rect width="500" height="350" fill="url(#dots)" />
+                  <rect width="500" height="350" fill="url(#dots)"/>
 
                   {/* Guide triangle outline - Perfect right triangle 3:4:5 ratio */}
                   <polygon
@@ -851,12 +851,12 @@ const KinestheticTeaching = ({ content, title }) => {
                   />
 
                   {/* Corner markers */}
-                  <circle cx="50" cy="265" r="6" fill="#8b5cf6" opacity="0.8" />
-                  <circle cx="250" cy="265" r="6" fill="#8b5cf6" opacity="0.8" />
-                  <circle cx="250" cy="90" r="6" fill="#8b5cf6" opacity="0.8" />
+                  <circle cx="50" cy="265" r="6" fill="#8b5cf6" opacity="0.8"/>
+                  <circle cx="250" cy="265" r="6" fill="#8b5cf6" opacity="0.8"/>
+                  <circle cx="250" cy="90" r="6" fill="#8b5cf6" opacity="0.8"/>
 
                   {/* Right angle indicator */}
-                  <path d="M 235 265 L 235 250 L 250 250" stroke="#8b5cf6" strokeWidth="3" fill="none" opacity="0.8" />
+                  <path d="M 235 265 L 235 250 L 250 250" stroke="#8b5cf6" strokeWidth="3" fill="none" opacity="0.8"/>
 
                   {/* Side labels on the guide */}
                   <text x="150" y="285" textAnchor="middle" fill="#6b46c1" fontSize="12" fontWeight="600">Base</text>
@@ -1042,7 +1042,7 @@ const LearningCurveTest = () => {
                   <div class="square-c">3.9² = 15.21</div>
                 </div>
               </div>
-              <p><strong>Answer:</strong> 2.25 + 12.96 = 15.21, so the ladder is √15.21 ≈ 3.9 meters long!</p>
+              <p><strong>Answer:</strong> 2.25 + 12.96 = 15.21, so the ladder is sqrt(15.21) ≈ 3.9 meters long!</p>
             </div>
           `
         },
@@ -1175,7 +1175,7 @@ const LearningCurveTest = () => {
                     </div>
                   </div>
                 </div>
-                <p class="formula">Formula: (Games Won ÷ Total Games) × 100 = Win Rate %</p>
+                <p class="formula">Formula: (Games Won / Total Games) × 100 = Win Rate %</p>
               </div>
             </div>
           `
@@ -1497,7 +1497,7 @@ const LearningCurveTest = () => {
         {
           question: "🎮 You won 3 out of 4 games. What's your win percentage?",
           answer: "75",
-          explanation: "(3 ÷ 4) × 100 = 0.75 × 100 = 75%",
+          explanation: "(3 / 4) × 100 = 0.75 × 100 = 75%",
           difficulty: 2
         },
         {
@@ -1521,7 +1521,7 @@ const LearningCurveTest = () => {
         {
           question: "📈 An investment grows from ₹400 to ₹500. What's the percentage increase?",
           answer: "25",
-          explanation: "Increase = ₹500 - ₹400 = ₹100. Percentage = (₹100 ÷ ₹400) × 100 = 25%",
+          explanation: "Increase = ₹500 - ₹400 = ₹100. Percentage = (₹100 / ₹400) × 100 = 25%",
           difficulty: 4
         }
       ],
@@ -1535,7 +1535,7 @@ const LearningCurveTest = () => {
         {
           question: "🚗 A taxi charges ₹2 per mile. If the fare was ₹10, how many miles?",
           answer: "5",
-          explanation: "2x = 10, so x = 10 ÷ 2 = 5 miles",
+          explanation: "2x = 10, so x = 10 / 2 = 5 miles",
           difficulty: 1
         },
         {
@@ -1703,15 +1703,15 @@ const LearningCurveTest = () => {
     const { learningProfile, insights } = classifyLearner(trendType, errorPattern, speedAccuracyProfile, accuracy, averageTime)
 
     // Calculate improvement for additional insight
-    const firstThirdAccuracy = data.slice(0, Math.ceil(totalQuestions / 3)).filter(q => q.isCorrect).length / Math.ceil(totalQuestions / 3) * 100
-    const lastThirdAccuracy = data.slice(-Math.ceil(totalQuestions / 3)).filter(q => q.isCorrect).length / Math.ceil(totalQuestions / 3) * 100
+    const firstThirdAccuracy = data.slice(0, Math.ceil(totalQuestions/3)).filter(q => q.isCorrect).length / Math.ceil(totalQuestions/3) * 100
+    const lastThirdAccuracy = data.slice(-Math.ceil(totalQuestions/3)).filter(q => q.isCorrect).length / Math.ceil(totalQuestions/3) * 100
     const improvement = lastThirdAccuracy - firstThirdAccuracy
 
     // 🤝 GENERATE STUDY BUDDIES
     const currentTopic = selectedTopic === 'basic-geometry' ? 'Math' :
-      selectedTopic === 'percentages' ? 'Math' :
-        selectedTopic === 'linear-equations' ? 'Math' :
-          selectedTopic === 'pythagoras' ? 'Math' : 'Math'
+                        selectedTopic === 'percentages' ? 'Math' :
+                        selectedTopic === 'linear-equations' ? 'Math' :
+                        selectedTopic === 'pythagoras' ? 'Math' : 'Math'
 
     const userSubjects = [currentTopic, 'General Studies']
     const studyBuddies = findStudyBuddies(learningProfile.type, accuracy, userSubjects)
@@ -1749,7 +1749,7 @@ const LearningCurveTest = () => {
         date: new Date().toLocaleDateString(),
         accuracy: learningCurveProfile.accuracy,
         averageTime: learningCurveProfile.testData.reduce((sum, q) => sum + q.timeSpent, 0) / learningCurveProfile.testData.length,
-        notes: `₹{learningCurveProfile.learningProfile.type} assessment completed`
+        notes: `${learningCurveProfile.learningProfile.type} assessment completed`
       }
 
       const existingHistory = JSON.parse(localStorage.getItem('learningHistory') || '[]')
@@ -1772,9 +1772,18 @@ const LearningCurveTest = () => {
 
   if (loading) {
     return (
-      <div className="learning-curve-container">
-        <div className="loading-spinner"></div>
-        <p>Analyzing your learning curve...</p>
+      <div className="learning-curve-page">
+        <div className="learning-curve-container">
+          <div className="topic-selection-card">
+            <div className="loading-spinner">
+              <div className="spinner-ring"></div>
+              <div className="spinner-ring"></div>
+              <div className="spinner-ring"></div>
+            </div>
+            <h3>Analyzing your learning curve...</h3>
+            <p>Preparing your personalized assessment experience</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -1782,21 +1791,34 @@ const LearningCurveTest = () => {
   // Topic Selection Phase
   if (currentPhase === 'topic-selection') {
     return (
-      <div className="learning-curve-container">
-        <div className="topic-selection-card">
-
-          <div className="topics-grid">
-            {topics.map((topic) => (
-              <div
-                key={topic.id}
-                className="topic-card"
-                onClick={() => handleTopicSelect(topic)}
-              >
-                <div className="topic-icon">{topic.icon}</div>
-                <h3>{topic.title}</h3>
-                <p>{topic.description}</p>
+      <div className="learning-curve-page">
+        <div className="learning-curve-container">
+          <div className="topic-selection-card">
+            <div className="test-header">
+              <div className="header-badge">
+                <svg className="header-badge-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Calibre Assessment
               </div>
-            ))}
+              <h1>Discover Your Learning Speed</h1>
+              <p>Choose a topic below to discover how quickly you master new concepts and receive personalized learning insights</p>
+            </div>
+
+            <div className="topics-grid">
+              {topics.map((topic) => (
+                <div
+                  key={topic.id}
+                  className="topic-card"
+                  onClick={() => handleTopicSelect(topic)}
+                >
+                  <div className="topic-icon">{topic.icon}</div>
+                  <h3>{topic.title}</h3>
+                  <p>{topic.description}</p>
+                  <span className="difficulty-badge">{topic.difficulty}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -1808,39 +1830,53 @@ const LearningCurveTest = () => {
     const teachingContent = getTeachingContent(selectedTopic.id, selectedLearningStyle)
 
     return (
-      <div className="learning-curve-container">
-        <div className="teaching-card">
-          <div className="teaching-header">
-            <h2>Learn: {selectedTopic.title}</h2>
-            <p>Current learning style: <strong>{selectedLearningStyle}</strong></p>
-          </div>
-
-          <div className="learning-style-switcher">
-            <h4>🎯 Choose Your Learning Style:</h4>
-            <div className="style-buttons">
-              <button
-                className={`style-btn ₹{selectedLearningStyle === 'visual' ? 'active' : ''}`}
-                onClick={() => setSelectedLearningStyle('visual')}
-              >
-                👁️ Visual
-                <span>Charts, diagrams, colors</span>
-              </button>
-              <button
-                className={`style-btn ₹{selectedLearningStyle === 'auditory' ? 'active' : ''}`}
-                onClick={() => setSelectedLearningStyle('auditory')}
-              >
-                🎧 Auditory
-                <span>Stories, explanations, sounds</span>
-              </button>
-              <button
-                className={`style-btn ₹{selectedLearningStyle === 'kinesthetic' ? 'active' : ''}`}
-                onClick={() => setSelectedLearningStyle('kinesthetic')}
-              >
-                🎮 Interactive
-                <span>Hands-on, drag & drop</span>
-              </button>
+      <div className="learning-curve-page">
+        <div className="learning-curve-container">
+          <div className="teaching-card">
+            <div className="teaching-header">
+              <div className="teaching-type-badge">
+                {selectedLearningStyle === 'visual' ? '👁️ Visual Learning' :
+                 selectedLearningStyle === 'auditory' ? '🎧 Audio Learning' : '🎮 Interactive Learning'}
+              </div>
+              <h2>Learn: {selectedTopic.title}</h2>
+              <p>Master the fundamentals with your preferred learning style</p>
             </div>
-          </div>
+
+            <div className="learning-style-switcher">
+              <h4>🎯 Choose Your Learning Style:</h4>
+              <div className="style-buttons">
+                <button
+                  className={`style-button ${selectedLearningStyle === 'visual' ? 'active' : ''}`}
+                  onClick={() => setSelectedLearningStyle('visual')}
+                >
+                  <span className="style-icon">👁️</span>
+                  <div>
+                    <div>Visual</div>
+                    <small>Charts, diagrams, colors</small>
+                  </div>
+                </button>
+                <button
+                  className={`style-button ${selectedLearningStyle === 'auditory' ? 'active' : ''}`}
+                  onClick={() => setSelectedLearningStyle('auditory')}
+                >
+                  <span className="style-icon">🎧</span>
+                  <div>
+                    <div>Auditory</div>
+                    <small>Stories, explanations, sounds</small>
+                  </div>
+                </button>
+                <button
+                  className={`style-button ${selectedLearningStyle === 'kinesthetic' ? 'active' : ''}`}
+                  onClick={() => setSelectedLearningStyle('kinesthetic')}
+                >
+                  <span className="style-icon">🎮</span>
+                  <div>
+                    <div>Interactive</div>
+                    <small>Hands-on, drag & drop</small>
+                  </div>
+                </button>
+              </div>
+            </div>
 
           <div className="teaching-content">
             {teachingContent.type === 'audio' ? (
@@ -1858,19 +1894,26 @@ const LearningCurveTest = () => {
             )}
           </div>
 
-          <div className="teaching-navigation">
-            <button
-              onClick={() => setCurrentPhase('topic-selection')}
-              className="nav-button secondary"
-            >
-              Choose Different Topic
-            </button>
-            <button
-              onClick={handleStartTest}
-              className="nav-button primary"
-            >
-              Start Learning Assessment
-            </button>
+          <div className="test-navigation">
+              <button
+                onClick={() => setCurrentPhase('topic-selection')}
+                className="nav-btn secondary"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+                </svg>
+                Choose Different Topic
+              </button>
+              <button
+                onClick={handleStartTest}
+                className="nav-btn primary"
+              >
+                Start Learning Assessment
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1882,43 +1925,84 @@ const LearningCurveTest = () => {
     const progress = ((currentQuestion + 1) / questions.length) * 100
 
     return (
-      <div className="learning-curve-container">
-        <div className="test-card">
-
-          <div className="question-container">
-            <h3 className="question-text">
-              {questions[currentQuestion]?.question}
-            </h3>
-
-            <div className="answer-input">
-              <input
-                type="text"
-                placeholder="Enter your answer"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && e.target.value.trim()) {
-                    handleAnswerSubmit(e.target.value.trim())
-                    e.target.value = ''
-                  }
-                }}
-                autoFocus
-              />
-              <button
-                onClick={(e) => {
-                  const input = e.target.previousElementSibling
-                  if (input.value.trim()) {
-                    handleAnswerSubmit(input.value.trim())
-                    input.value = ''
-                  }
-                }}
-                className="submit-answer-btn"
-              >
-                Submit
-              </button>
+      <div className="learning-curve-page">
+        <div className="learning-curve-container">
+          <div className="test-card">
+            <div className="test-header">
+              <div className="header-badge">
+                <svg className="header-badge-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7V9L21 9ZM3 9V7L9 7V9L3 9Z"/>
+                </svg>
+                Calibre Assessment
+              </div>
+              <h1>{selectedTopic.title} Test</h1>
+              <p>Answer as quickly and accurately as possible to measure your learning speed</p>
             </div>
 
-            <div className="test-info">
-              <p>💡 Tip: Answer as quickly as you can while being accurate</p>
-              <p>⏱️ Time is being measured for each question</p>
+              <div className="progress-header">
+                <span className="progress-label">Assessment Progress</span>
+                <span className="progress-counter">
+                  {currentQuestion + 1} of {questions.length}
+                </span>
+              </div>
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="question-card">
+              <div className="question-header">
+                <div className="question-number">{currentQuestion + 1}</div>
+                <h2 className="question-text">
+                  {questions[currentQuestion]?.question}
+                </h2>
+              </div>
+
+              <div className="answer-section">
+                <div className="input-group">
+                  <label>Your Answer:</label>
+                  <input
+                    type="text"
+                    placeholder="Type your answer here..."
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && e.target.value.trim()) {
+                        handleAnswerSubmit(e.target.value.trim())
+                        e.target.value = ''
+                      }
+                    }}
+                    autoFocus
+                  />
+                </div>
+                <button
+                  onClick={(e) => {
+                    const input = e.target.parentElement.querySelector('input')
+                    if (input.value.trim()) {
+                      handleAnswerSubmit(input.value.trim())
+                      input.value = ''
+                    }
+                  }}
+                  className="nav-btn primary"
+                >
+                  Submit Answer
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div className="test-info">
+                <div className="info-card">
+                  <span>💡</span>
+                  <p>Answer as quickly as you can while being accurate</p>
+                </div>
+                <div className="info-card">
+                  <span>⏱</span>
+                  <p>Time is being measured for each question</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1965,39 +2049,44 @@ const LearningCurveTest = () => {
     const wrongCount = result.testData.length - correctCount
 
     return (
-      <div className="learning-curve-container">
-        <div className="result-card">
-          <div className="result-header">
-            <div className="result-icon" style={{ backgroundColor: getSpeedColor(result.learningProfile?.type || result.speed) }}>
-              {getProfileIcon(result.learningProfile?.type || result.speed)}
+      <div className="learning-curve-page">
+        <div className="learning-curve-container">
+          <div className="result-card">
+            <div className="result-header">
+              <div className="result-celebration">
+                <div className="celebration-icon">
+                  {getProfileIcon(result.learningProfile?.type || result.speed)}
+                </div>
+              </div>
+              <div className="result-badge">Assessment Complete</div>
+              <h1 className="result-title">Your Learning Profile</h1>
+              <h2 className="result-subtitle" style={{ color: getSpeedColor(result.learningProfile?.type || result.speed) }}>
+                {result.learningProfile?.title || result.type}
+              </h2>
             </div>
-            <h2>Your Learning Intelligence Profile</h2>
-            <h3 className="result-type">{result.learningProfile?.title || result.type}</h3>
-            <div className="learning-speed-badge" style={{ backgroundColor: getSpeedColor(result.learningProfile?.type || result.speed) }}>
-              {result.learningProfile?.title || result.type}
-            </div>
-          </div>
 
-          <div className="result-overview">
-            <div className="overview-grid">
-              <div className="overview-card correct">
-                <div className="overview-number">{correctCount}</div>
-                <div className="overview-label">Correct</div>
+            <div className="result-stats">
+              <div className="stat-card">
+                <div className="stat-icon">✅</div>
+                <div className="stat-value">{correctCount}</div>
+                <div className="stat-label">Correct Answers</div>
               </div>
-              <div className="overview-card wrong">
-                <div className="overview-number">{wrongCount}</div>
-                <div className="overview-label">Wrong</div>
+              <div className="stat-card">
+                <div className="stat-icon">❌</div>
+                <div className="stat-value">{wrongCount}</div>
+                <div className="stat-label">Incorrect</div>
               </div>
-              <div className="overview-card time">
-                <div className="overview-number">{Math.round(totalTime / 1000)}s</div>
-                <div className="overview-label">Total Time</div>
+              <div className="stat-card">
+                <div className="stat-icon">⏱️</div>
+                <div className="stat-value">{Math.round(totalTime / 1000)}s</div>
+                <div className="stat-label">Total Time</div>
               </div>
-              <div className="overview-card accuracy">
-                <div className="overview-number">{result.accuracy.toFixed(0)}%</div>
-                <div className="overview-label">Accuracy</div>
+              <div className="stat-card">
+                <div className="stat-icon">📊</div>
+                <div className="stat-value">{result.accuracy.toFixed(0)}%</div>
+                <div className="stat-label">Accuracy</div>
               </div>
             </div>
-          </div>
 
           {/* 🧠 LEARNING INTELLIGENCE INSIGHTS */}
           {result.learningProfile && (
@@ -2174,41 +2263,44 @@ const LearningCurveTest = () => {
             </div>
           )}
 
-          <div className="result-actions">
-            <button
-              onClick={() => setShowDetailedResults(!showDetailedResults)}
-              className="details-button"
-            >
-              {showDetailedResults ? 'Hide' : 'Show'} Detailed Results
-            </button>
-            <button
-              onClick={handleContinue}
-              className="continue-button"
-            >
-              Continue to Dashboard
-            </button>
-          </div>
+            <div className="action-buttons">
+              <button
+                onClick={() => setShowDetailedResults(!showDetailedResults)}
+                className="action-btn secondary"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                {showDetailedResults ? 'Hide' : 'Show'} Detailed Results
+              </button>
+              <button
+                onClick={handleContinue}
+                className="action-btn primary"
+              >
+                Continue to Dashboard
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+              </button>
+            </div>
 
-          {showDetailedResults && (
-            <div className="detailed-results">
-              <h4>📊 Question-by-Question Analysis</h4>
-              <div className="question-results">
-                {result.testData.map((question, index) => (
-                  <div key={index} className={`question-result ₹{question.isCorrect ? 'correct' : 'wrong'}`}>
-                    <div className="question-header">
-                      <div className="question-number">Q{index + 1}</div>
-                      <div className="question-status">
-                        {question.isCorrect ? '✅' : '❌'}
+            {showDetailedResults && (
+              <div className="detailed-results">
+                <h3>📊 Question-by-Question Analysis</h3>
+                <div className="results-grid">
+                  {result.testData.map((question, index) => (
+                    <div key={index} className="result-item">
+                      <div className="result-question">
+                        <strong>Q{index + 1}:</strong> {question.question}
                       </div>
-                      <div className="question-time">{(question.timeSpent / 1000).toFixed(1)}s</div>
-                    </div>
-                    <div className="question-text">{question.question}</div>
-                    <div className="question-answers">
-                      <div className="answer-row">
-                        <span className="answer-label">Your answer:</span>
-                        <span className={`answer-value ₹{question.isCorrect ? 'correct' : 'wrong'}`}>
-                          {question.userAnswer}
-                        </span>
+                      <div className="result-details">
+                        <div className={`result-status ${question.isCorrect ? 'correct' : 'incorrect'}`}>
+                          {question.isCorrect ? '✅ Correct' : '❌ Incorrect'}
+                        </div>
+                        <div className="result-time">{(question.timeSpent / 1000).toFixed(1)}s</div>
+                      </div>
+                      <div className="answer-comparison">
+                        <div>Your answer: <strong>{question.userAnswer}</strong></div>
                       </div>
                       {!question.isCorrect && (
                         <div className="answer-row">
@@ -2217,10 +2309,10 @@ const LearningCurveTest = () => {
                         </div>
                       )}
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           )}
 
           {/* 🤝 SMART STUDY BUBBLE */}
@@ -2246,8 +2338,8 @@ const LearningCurveTest = () => {
                       </div>
                       <div className="compatibility-badge">
                         {index === 0 ? '🎯 Similar Pace' :
-                          index === 1 ? '🔄 Complementary Style' :
-                            '📚 Shared Interests'}
+                         index === 1 ? '🔄 Complementary Style' :
+                         '📚 Shared Interests'}
                       </div>
                     </div>
                   </div>
@@ -2263,24 +2355,25 @@ const LearningCurveTest = () => {
           <div className="learning-tips">
             <h4>Personalized Learning Recommendations</h4>
             <div className="tips-grid">
-              {result.learningProfile?.recommendations?.map((recommendation, index) => (
-                <div key={index} className="tip-card intelligent">
-                  <div className="tip-icon">💡</div>
-                  <div className="tip-content">
-                    <div className="tip-title">Recommendation {index + 1}</div>
-                    <div className="tip-description">{recommendation}</div>
-                  </div>
-                </div>
-              )) || [
-                  // Fallback to generic tips if no intelligent recommendations
-                  <div key="1" className="tip-card">
-                    <div className="tip-icon">📚</div>
+              {result.learningProfile?.recommendations?.length > 0 ? (
+                result.learningProfile.recommendations.map((recommendation, index) => (
+                  <div key={index} className="tip-card intelligent">
+                    <div className="tip-icon">💡</div>
                     <div className="tip-content">
-                      <div className="tip-title">Keep Learning</div>
-                      <div className="tip-description">Continue practicing to improve your skills</div>
+                      <div className="tip-title">Recommendation {index + 1}</div>
+                      <div className="tip-description">{recommendation}</div>
                     </div>
                   </div>
-                ]}
+                ))
+              ) : (
+                <div key="1" className="tip-card">
+                  <div className="tip-icon">📚</div>
+                  <div className="tip-content">
+                    <div className="tip-title">Keep Learning</div>
+                    <div className="tip-description">Continue practicing to improve your skills</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

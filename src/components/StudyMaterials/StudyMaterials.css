@@ -522,7 +522,7 @@
   background: var(--bg-secondary);
 }
 
-.chat-input {
+.study-chat-input {
   flex: 1;
   padding: 1rem 1.25rem;
   border: 1px solid var(--border-color);
@@ -533,7 +533,7 @@
   font-weight: 500;
 }
 
-.chat-input:focus {
+.study-chat-input:focus {
   outline: none;
   border-color: var(--primary-500);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);

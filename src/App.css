@@ -27,23 +27,248 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%);
+  position: relative;
+  overflow: hidden;
 }
 
+/* Background decorative elements for loading */
+.loading-bg-decoration {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+.loading-circle-1 {
+  top: 10%;
+  left: 15%;
+  width: 80px;
+  height: 80px;
+  background: #ddd6fe;
+  animation: float 6s ease-in-out infinite;
+}
+
+.loading-circle-2 {
+  bottom: 15%;
+  right: 20%;
+  width: 60px;
+  height: 60px;
+  background: #fef3c7;
+  animation: float 4s ease-in-out infinite reverse;
+}
+
+.loading-circle-3 {
+  top: 30%;
+  right: 10%;
+  width: 40px;
+  height: 40px;
+  background: #ddd6fe;
+  opacity: 0.5;
+  animation: float 5s ease-in-out infinite;
+}
+
+/* StudAI Logo for loading */
+.loading-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.loading-logo-icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-logo-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 8px rgba(139, 92, 246, 0.3));
+}
+
+.loading-logo-text {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: "Quicksand", sans-serif;
+}
+
+.loading-logo-highlight {
+  color: #8b5cf6;
+  font-family: "Jua", sans-serif;
+  font-weight: 400;
+}
+
+/* Animated loading elements */
+.loading-elements {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Minimal loading spinner */
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid white;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(139, 92, 246, 0.1);
+  border-top: 3px solid #8b5cf6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
+/* Floating hashtags */
+.loading-hashtags {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.loading-hashtag {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  font-family: "Quicksand", sans-serif;
+  animation: tagFloat 3s ease-in-out infinite;
+}
+
+.loading-hashtag:nth-child(1) {
+  background: #c4b5fd;
+  animation-delay: 0s;
+}
+
+.loading-hashtag:nth-child(2) {
+  background: #fbbf24;
+  animation-delay: 0.5s;
+}
+
+.loading-hashtag:nth-child(3) {
+  background: #8b5cf6;
+  animation-delay: 1s;
+}
+
+/* Loading text */
+.loading-text {
+  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+  font-family: "Quicksand", sans-serif;
+  animation: textFade 2s ease-in-out infinite;
+}
+
+.loading-subtext {
+  color: #6b7280;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  font-family: "Quicksand", sans-serif;
+  opacity: 0.8;
+}
+
+/* Spiral decoration for loading */
+.loading-spiral {
+  position: absolute;
+  bottom: 20%;
+  left: 10%;
+  color: #ddd6fe;
+  opacity: 0.6;
+  animation: spiralRotate 8s linear infinite;
+}
+
+
+/* Animations */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+@keyframes tagFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+    opacity: 1;
+  }
+}
+
+@keyframes textFade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes spiralRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* Responsive loading design */
+@media (max-width: 768px) {
+  .loading-logo {
+    margin-bottom: 1.5rem;
+  }
+
+  .loading-logo-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .loading-logo-text {
+    font-size: 1.5rem;
+  }
+
+  .loading-spinner {
+    width: 35px;
+    height: 35px;
+    border-width: 2.5px;
+  }
+
+  .loading-hashtags {
+    gap: 0.75rem;
+  }
+
+  .loading-hashtag {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .loading-circle-1 {
+    width: 60px;
+    height: 60px;
+  }
+
+  .loading-circle-2 {
+    width: 45px;
+    height: 45px;
+  }
+
+  .loading-circle-3 {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 /* Utility Classes */

@@ -23,11 +23,26 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false)
     }
+
+    // Set a maximum loading time to prevent infinite loading
+    const maxLoadingTimeout = setTimeout(() => {
+      console.warn('Authentication check taking too long, proceeding without user data')
+      setLoading(false)
+    }, 3000) // 3 seconds max loading time
+
+    return () => clearTimeout(maxLoadingTimeout)
   }, [])
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await api.get('/auth/me')
+      // Add a race condition with timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Auth timeout')), 3000)
+      )
+
+      const authPromise = api.get('/auth/me')
+      const response = await Promise.race([authPromise, timeoutPromise])
+
       setUser(response.data.user)
     } catch (error) {
       console.error('Error fetching user:', error)

@@ -444,10 +444,10 @@ const ProfileSection = () => {
   // Now only triggered by user request
 
   const tabs = [
-    { id: 'overview', name: 'Overview', icon: '□', description: 'Your profile stats' },
-    { id: 'progress', name: 'Progress', icon: '◢', description: 'Learning timeline' },
-    { id: 'insights', name: 'Insights', icon: '◇', description: 'AI analysis' },
-    { id: 'community', name: 'Community', icon: '◈', description: 'Study buddies' }
+    { id: 'overview', name: 'Overview', icon: '📊', description: 'Your profile & stats' },
+    { id: 'progress', name: 'Progress', icon: '📈', description: 'Learning timeline' },
+    { id: 'insights', name: 'Insights', icon: '🧠', description: 'AI analysis' },
+    { id: 'community', name: 'Community', icon: '👥', description: 'Study buddies' }
   ]
 
   const renderLearningCurve = () => {
@@ -600,12 +600,20 @@ const ProfileSection = () => {
         <div className="profile-avatar">
           <div className="avatar-circle main-avatar">
             <div className="avatar-bg"></div>
-            <span className="avatar-text">{userProfile?.initials || 'U'}</span>
+            <span className="avatar-text">
+              {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'ST'}
+            </span>
           </div>
         </div>
         <div className="profile-info">
-          <h3>{userProfile?.name || 'Student'}</h3>
-          <p className="profile-type">{userProfile?.type || 'Learning in Progress'}</p>
+          <h3>{user?.name || 'Student'}</h3>
+          <p className="profile-type">
+            {user?.role === 'admin' ? '🛠️ Administrator' :
+             userProfile?.type || '🌊 Balanced Learner'}
+          </p>
+          {user?.email && (
+            <p className="profile-email">{user.email}</p>
+          )}
           <div className="profile-stats">
             <div className="stat-item">
               <span className="stat-value">{learningHistory.length}</span>

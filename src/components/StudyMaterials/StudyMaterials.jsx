@@ -338,7 +338,7 @@ const StudyMaterials = () => {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   placeholder="Ask me anything about your study materials..."
-                  className="chat-input"
+                  className="study-chat-input"
                 />
                 <button type="submit" className="chat-send-button">
                   Send

@@ -1089,7 +1089,7 @@
   box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
-.chat-input {
+.chatbot-input-container {
   display: flex;
   padding: 1.5rem;
   border-top: 2px solid #e5e7eb;
@@ -1098,7 +1098,7 @@
   align-items: flex-end;
 }
 
-.chat-input textarea {
+.chatbot-input-container textarea {
   flex: 1;
   padding: 1rem 1.25rem;
   border: 2px solid #e5e7eb;
@@ -1115,7 +1115,7 @@
   max-height: 100px;
 }
 
-.chat-input textarea:focus {
+.chatbot-input-container textarea:focus {
   outline: none;
   border-color: #8b5cf6;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
