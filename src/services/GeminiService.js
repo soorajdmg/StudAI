@@ -885,3 +885,305 @@ const getFallbackQuiz = (content, fileName, learningStyle) => {
     adaptedFor: learningStyle
   };
 };
+
+// MVP: AI-Generated Personalized Study Materials
+export const PREDEFINED_TOPICS = {
+  science: [
+    { id: 'photosynthesis', name: 'Photosynthesis', subject: 'Biology' },
+    { id: 'newtons-laws', name: "Newton's Laws of Motion", subject: 'Physics' },
+    { id: 'periodic-table', name: 'The Periodic Table', subject: 'Chemistry' },
+    { id: 'cell-structure', name: 'Cell Structure & Function', subject: 'Biology' },
+    { id: 'energy-forms', name: 'Forms of Energy', subject: 'Physics' }
+  ],
+  math: [
+    { id: 'algebra-basics', name: 'Algebra Basics', subject: 'Algebra' },
+    { id: 'geometry-theorems', name: 'Geometry Theorems', subject: 'Geometry' },
+    { id: 'calculus-intro', name: 'Introduction to Calculus', subject: 'Calculus' },
+    { id: 'probability', name: 'Probability & Statistics', subject: 'Statistics' },
+    { id: 'trigonometry', name: 'Trigonometry Fundamentals', subject: 'Math' }
+  ],
+  history: [
+    { id: 'world-war-2', name: 'World War II', subject: 'History' },
+    { id: 'industrial-revolution', name: 'The Industrial Revolution', subject: 'History' },
+    { id: 'ancient-civilizations', name: 'Ancient Civilizations', subject: 'History' },
+    { id: 'civil-rights', name: 'Civil Rights Movement', subject: 'History' },
+    { id: 'renaissance', name: 'The Renaissance', subject: 'History' }
+  ],
+  language: [
+    { id: 'grammar-essentials', name: 'English Grammar Essentials', subject: 'English' },
+    { id: 'essay-writing', name: 'Essay Writing Techniques', subject: 'English' },
+    { id: 'poetry-analysis', name: 'Poetry Analysis', subject: 'Literature' },
+    { id: 'literary-devices', name: 'Literary Devices', subject: 'Literature' },
+    { id: 'critical-reading', name: 'Critical Reading Skills', subject: 'English' }
+  ]
+};
+
+// Learning Style Prompt Templates
+const LEARNING_STYLE_PROMPTS = {
+  Visual: (topic, materialType) => `
+You are StudAI's visual learning specialist. Create study material for "${topic}" optimized for visual learners.
+
+VISUAL LEARNER REQUIREMENTS:
+- Heavy use of visual descriptions for diagrams, charts, and infographics
+- Color-coded information and visual hierarchies
+- Mind maps and flowchart descriptions
+- Spatial organization of concepts
+- Visual metaphors and analogies
+- Bullet points with clear visual structure
+
+MATERIAL TYPE: ${materialType}
+
+${getMaterialTypeInstructions(materialType, 'Visual')}
+
+Keep the response under 400 words. Format for easy visualization and scanning.`,
+
+  Auditory: (topic, materialType) => `
+You are StudAI's auditory learning specialist. Create study material for "${topic}" optimized for auditory learners.
+
+AUDITORY LEARNER REQUIREMENTS:
+- Written as if being narrated/spoken aloud
+- Use rhythmic patterns and repetition
+- Include mnemonics and verbal memory aids
+- Conversational, dialogue-like explanations
+- Sound-based associations and verbal cues
+- "Read-aloud friendly" formatting
+
+MATERIAL TYPE: ${materialType}
+
+${getMaterialTypeInstructions(materialType, 'Auditory')}
+
+Keep the response under 400 words. Write in a narrative, spoken-word style.`,
+
+  Kinesthetic: (topic, materialType) => `
+You are StudAI's kinesthetic learning specialist. Create study material for "${topic}" optimized for hands-on learners.
+
+KINESTHETIC LEARNER REQUIREMENTS:
+- Practical, hands-on activities and experiments
+- Physical demonstrations and real-world applications
+- Step-by-step interactive exercises
+- Movement-based learning strategies
+- Tangible examples and simulations
+- "Try it yourself" components
+
+MATERIAL TYPE: ${materialType}
+
+${getMaterialTypeInstructions(materialType, 'Kinesthetic')}
+
+Keep the response under 400 words. Focus on actionable, experiential learning.`,
+
+  Mixed: (topic, materialType) => `
+You are StudAI's comprehensive learning specialist. Create study material for "${topic}" using a multi-modal approach.
+
+MIXED LEARNER REQUIREMENTS:
+- Combine visual, auditory, and kinesthetic elements
+- Multiple representation methods
+- Varied learning activities
+- Balance between theory and practice
+- Include diagrams descriptions + explanations + activities
+- Cater to different learning preferences
+
+MATERIAL TYPE: ${materialType}
+
+${getMaterialTypeInstructions(materialType, 'Mixed')}
+
+Keep the response under 450 words. Provide diverse, multi-sensory learning elements.`
+};
+
+const getMaterialTypeInstructions = (type, style) => {
+  const instructions = {
+    summary: {
+      Visual: 'Create a visually-structured summary with clear sections, bullet points, and descriptions of visual aids (diagrams, charts). Use color-coding suggestions.',
+      Auditory: 'Write a narrative summary that flows like a story or lecture. Use rhythmic language and verbal memory aids.',
+      Kinesthetic: 'Create a summary with hands-on examples, real-world applications, and interactive elements students can try.',
+      Mixed: 'Provide a comprehensive summary with visual structure, narrative flow, and practical examples.'
+    },
+    notes: {
+      Visual: 'Create visual study notes with clear hierarchies, mind map structures, color-coded sections, and diagram descriptions.',
+      Auditory: 'Write conversational study notes as if explaining to someone verbally. Include mnemonics and verbal patterns.',
+      Kinesthetic: 'Create action-oriented notes with experiments, demonstrations, and hands-on practice activities.',
+      Mixed: 'Provide comprehensive notes combining visual organization, verbal explanations, and practical activities.'
+    },
+    flashcards: {
+      Visual: 'Design flashcards with visual cues, color associations, diagram descriptions, and spatial memory aids.',
+      Auditory: 'Create flashcards with rhythm, verbal associations, and "say-aloud" prompts.',
+      Kinesthetic: 'Design interactive flashcards with physical actions, gestures, or hands-on demonstrations.',
+      Mixed: 'Create multi-modal flashcards combining visual, verbal, and action-based elements.'
+    },
+    outline: {
+      Visual: 'Create a visual topic outline with clear hierarchical structure, visual markers, and flowchart-like organization.',
+      Auditory: 'Write an outline that reads like a table of contents with narrative descriptions for each section.',
+      Kinesthetic: 'Create an action-based outline with practical steps, experiments, and hands-on learning checkpoints.',
+      Mixed: 'Provide a comprehensive outline combining visual structure, narrative descriptions, and practical activities.'
+    }
+  };
+
+  return instructions[type]?.[style] || instructions[type]?.Mixed || 'Create comprehensive study material.';
+};
+
+// Normalize learning style to match prompt keys
+const normalizeLearningStyle = (style) => {
+  if (!style) return 'Mixed';
+
+  const normalized = style.toLowerCase().trim();
+
+  // Handle various input formats
+  const styleMap = {
+    'visual': 'Visual',
+    'auditory': 'Auditory',
+    'kinesthetic': 'Kinesthetic',
+    'mixed': 'Mixed',
+    'reading/writing': 'Mixed',
+    'read/write': 'Mixed'
+  };
+
+  return styleMap[normalized] || 'Mixed';
+};
+
+export const generatePersonalizedStudyMaterial = async (topic, materialType = 'summary', learningStyle = 'Mixed') => {
+  try {
+    if (!API_KEY) {
+      console.warn('Gemini API key not found. Using fallback material generation.');
+      return getFallbackStudyMaterial(topic, materialType, learningStyle);
+    }
+
+    // Normalize the learning style
+    const normalizedStyle = normalizeLearningStyle(learningStyle);
+
+    console.log(`🎯 Generating ${materialType} for "${topic}" (${normalizedStyle} learner)...`);
+
+    // Use gemini-1.5-flash - same as other working functions
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const promptFunction = LEARNING_STYLE_PROMPTS[normalizedStyle];
+    const prompt = promptFunction ? promptFunction(topic, materialType) : LEARNING_STYLE_PROMPTS.Mixed(topic, materialType);
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const content = response.text();
+
+    console.log('✅ Generated personalized study material');
+
+    return {
+      topic,
+      materialType,
+      learningStyle: normalizedStyle,
+      content,
+      timestamp: new Date().toISOString(),
+      actions: getStyleSpecificActions(normalizedStyle, materialType)
+    };
+  } catch (error) {
+    console.error('❌ Material generation error:', error);
+    return getFallbackStudyMaterial(topic, materialType, normalizeLearningStyle(learningStyle));
+  }
+};
+
+const getStyleSpecificActions = (style, type) => {
+  const actions = {
+    Visual: ['Download PDF', 'View Diagram', 'Print Notes', 'Save Image'],
+    Auditory: ['Listen (TTS)', 'Record Audio', 'Download Audio', 'Read Aloud'],
+    Kinesthetic: ['Try Activity', 'Download Worksheet', 'Practice Exercise', 'Start Experiment'],
+    Mixed: ['Download PDF', 'Listen (TTS)', 'Try Activity', 'Save All']
+  };
+
+  return actions[style] || actions.Mixed;
+};
+
+const getFallbackStudyMaterial = (topic, materialType, learningStyle) => {
+  const fallbackContent = {
+    summary: `**${topic} - Summary for ${learningStyle} Learners**
+
+This is a comprehensive overview of ${topic} designed specifically for ${learningStyle.toLowerCase()} learning preferences.
+
+**Key Concepts:**
+- Understanding the fundamentals of ${topic}
+- Practical applications in real-world scenarios
+- Important principles and theories
+- Common misconceptions and how to avoid them
+
+**Learning Approach:**
+${learningStyle === 'Visual' ? 'Use diagrams, charts, and visual aids to reinforce concepts.' : ''}
+${learningStyle === 'Auditory' ? 'Read material aloud and discuss concepts with study partners.' : ''}
+${learningStyle === 'Kinesthetic' ? 'Practice hands-on activities and real-world applications.' : ''}
+${learningStyle === 'Mixed' ? 'Combine visual aids, verbal discussion, and practical exercises.' : ''}
+
+**Next Steps:**
+1. Review the key concepts thoroughly
+2. Apply what you've learned through practice
+3. Test your understanding with quizzes
+4. Connect concepts to real-world examples`,
+
+    notes: `**Study Notes: ${topic}**
+
+📚 **Topic Overview**
+${topic} is a fundamental concept that requires structured learning and practice.
+
+📝 **Main Points:**
+• Core principle 1: Foundation of ${topic}
+• Core principle 2: Applications and uses
+• Core principle 3: Advanced concepts
+
+💡 **${learningStyle} Learning Tips:**
+${learningStyle === 'Visual' ? '- Create mind maps and diagrams\n- Use color coding\n- Draw connections between concepts' : ''}
+${learningStyle === 'Auditory' ? '- Explain concepts out loud\n- Create verbal mnemonics\n- Discuss with peers' : ''}
+${learningStyle === 'Kinesthetic' ? '- Practice with real examples\n- Do hands-on activities\n- Build physical models' : ''}
+${learningStyle === 'Mixed' ? '- Use multiple study methods\n- Combine visual, verbal, and hands-on\n- Vary your approach' : ''}`,
+
+    flashcards: `**Flashcard Set: ${topic}**
+
+🎴 **Card 1:**
+Q: What is ${topic}?
+A: A fundamental concept in this subject area
+
+🎴 **Card 2:**
+Q: Why is ${topic} important?
+A: It forms the basis for understanding advanced concepts
+
+🎴 **Card 3:**
+Q: How can you apply ${topic}?
+A: Through practical examples and real-world scenarios
+
+**${learningStyle} Study Method:**
+${learningStyle === 'Visual' ? 'Associate each card with a visual image or color' : ''}
+${learningStyle === 'Auditory' ? 'Read cards aloud and create verbal associations' : ''}
+${learningStyle === 'Kinesthetic' ? 'Act out or demonstrate each concept physically' : ''}
+${learningStyle === 'Mixed' ? 'Use multiple review methods for best retention' : ''}`,
+
+    outline: `**Topic Outline: ${topic}**
+
+I. Introduction to ${topic}
+   A. Definition and context
+   B. Historical background
+   C. Importance and applications
+
+II. Core Concepts
+   A. Fundamental principles
+   B. Key terminology
+   C. Basic theories
+
+III. Advanced Understanding
+   A. Complex applications
+   B. Modern developments
+   C. Future directions
+
+IV. Practical Applications
+   A. Real-world examples
+   B. Case studies
+   C. Hands-on practice
+
+**${learningStyle} Learner Approach:**
+${learningStyle === 'Visual' ? 'Create visual maps of this outline with color coding' : ''}
+${learningStyle === 'Auditory' ? 'Read this outline aloud and explain each section' : ''}
+${learningStyle === 'Kinesthetic' ? 'Create physical demonstrations for each section' : ''}
+${learningStyle === 'Mixed' ? 'Use varied methods to explore each section' : ''}`
+  };
+
+  return {
+    topic,
+    materialType,
+    learningStyle,
+    content: fallbackContent[materialType] || fallbackContent.summary,
+    timestamp: new Date().toISOString(),
+    actions: getStyleSpecificActions(learningStyle, materialType),
+    isFallback: true
+  };
+};

@@ -8,7 +8,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
   },
-  timeout: 5000, // 5 second timeout for better UX
+  timeout: 30000, // 30 second timeout to handle Render cold starts
   withCredentials: false
 })
 
@@ -40,7 +40,7 @@ api.interceptors.response.use(
 
     // Handle timeout
     if (error.code === 'ECONNABORTED') {
-      return Promise.reject(new Error('Request timeout. Please check your connection and try again.'))
+      return Promise.reject(new Error('Server is starting up (this may take 30-60 seconds on first request). Please try again.'))
     }
 
     // Handle network connection issues

@@ -596,36 +596,46 @@ const ProfileSection = () => {
 
   const renderOverview = () => (
     <div className="profile-overview">
-      <div className="profile-header">
-        <div className="profile-avatar">
-          <div className="avatar-circle main-avatar">
-            <div className="avatar-bg"></div>
-            <span className="avatar-text">
+      {/* Profile Header - Main user information card */}
+      <div className="profile-header" data-section="profile-header-main">
+        {/* Avatar Section - User profile picture/initials */}
+        <div className="profile-avatar" data-element="avatar-section">
+          <div className="avatar-circle main-avatar" data-element="avatar-circle">
+            <div className="avatar-bg" data-element="avatar-background"></div>
+            <span className="avatar-text" data-element="avatar-initials">
               {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'ST'}
             </span>
           </div>
         </div>
-        <div className="profile-info">
-          <h3>{user?.name || 'Student'}</h3>
-          <p className="profile-type">
+        {/* Info Section - User details and stats */}
+        <div className="profile-info" data-element="profile-info-section">
+          {/* User Name */}
+          <h3 className="profile-name" data-element="user-name">{user?.name || 'Student'}</h3>
+          {/* Learning Type Badge */}
+          <p className="profile-type" data-element="learning-type-badge">
             {user?.role === 'admin' ? '🛠️ Administrator' :
              userProfile?.type || '🌊 Balanced Learner'}
           </p>
+          {/* User Email */}
           {user?.email && (
-            <p className="profile-email">{user.email}</p>
+            <p className="profile-email" data-element="user-email">{user.email}</p>
           )}
-          <div className="profile-stats">
-            <div className="stat-item">
-              <span className="stat-value">{learningHistory.length}</span>
-              <span className="stat-label">Assessments</span>
+          {/* Stats Row - Three stat cards */}
+          <div className="profile-stats" data-element="stats-row">
+            {/* Stat 1: Assessments Count */}
+            <div className="stat-item" data-stat="assessments-count">
+              <span className="stat-value" data-element="stat-value">{learningHistory.length}</span>
+              <span className="stat-label" data-element="stat-label">Assessments</span>
             </div>
-            <div className="stat-item">
-              <span className="stat-value">{userProfile?.averageAccuracy || 0}%</span>
-              <span className="stat-label">Avg Accuracy</span>
+            {/* Stat 2: Average Accuracy */}
+            <div className="stat-item" data-stat="avg-accuracy">
+              <span className="stat-value" data-element="stat-value">{userProfile?.averageAccuracy || 0}%</span>
+              <span className="stat-label" data-element="stat-label">Avg Accuracy</span>
             </div>
-            <div className="stat-item">
-              <span className="stat-value">{studyBuddies.length}</span>
-              <span className="stat-label">Study Buddies</span>
+            {/* Stat 3: Study Buddies Count */}
+            <div className="stat-item" data-stat="study-buddies-count">
+              <span className="stat-value" data-element="stat-value">{studyBuddies.length}</span>
+              <span className="stat-label" data-element="stat-label">Study Buddies</span>
             </div>
           </div>
         </div>

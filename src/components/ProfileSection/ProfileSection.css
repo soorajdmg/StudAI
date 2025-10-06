@@ -502,6 +502,7 @@
   font-weight: 700;
   font-family: 'Jua', sans-serif;
   letter-spacing: -0.025em;
+  text-align: left;
 }
 
 .profile-type {
@@ -513,6 +514,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-align: left;
 }
 
 .profile-stats {
@@ -1215,6 +1217,7 @@
   .profile-header {
     flex-direction: column;
     text-align: center;
+    align-items: center;
     gap: 1.5rem;
     padding: 2rem;
   }
