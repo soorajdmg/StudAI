@@ -90,14 +90,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`CORS Origins configured for production deployment`);
-  console.log('Available routes:');
-  console.log('- GET  / (health check)');
-  console.log('- GET  /api/health');
-  console.log('- POST /api/auth/register');
-  console.log('- POST /api/auth/login');
-  console.log('- GET  /api/auth/me');
-});
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`CORS Origins configured for production deployment`);
+    console.log('Available routes:');
+    console.log('- GET  / (health check)');
+    console.log('- GET  /api/health');
+    console.log('- POST /api/auth/register');
+    console.log('- POST /api/auth/login');
+    console.log('- GET  /api/auth/me');
+  });
+}
+
+module.exports = app;
